@@ -1,16 +1,101 @@
 import React, { useState } from 'react';
 
 export default function RegistrationForm() {
-    const messegeList = [
-        'Please enter your First Name',
-        'Please enter your Last Name',
-        'Please enter your Email',
-        'Please enter your Password'
-    ]
-    const [ firstNameMessege, setFirstNameMessege ] = useState(messegeList[0]);
-    const [ lastNameMessege, setLastNameMessege ] = useState(messegeList[1]);
-    const [ emailMessege, setEmailMessege ] = useState(messegeList[2]);
-    const [ passwordMessege, setPasswordMessege ] = useState(messegeList[3]);
+   
+     const initialFormMessage = {
+        firstNameMessage : "Please enter your First Name",
+        lastNameMessage : "Please enter your Last Name",
+        emailMessage : "Please enter your Email",
+        passwordMessage : "Please enter your password no less than 8 digits",
+        phoneNumberMessage : "Please enter your Phone Number"
+     }
+
+    const [ formData, setFormData ] = useState({
+        firstName : "",
+        lastName : "",
+        email : "",
+        password : "",
+        phoneNumber : ""
+    });
+    const [ formMessage, setFormMessage ] = useState(initialFormMessage);
+
+    function handleChange(event) {
+        const { name, value } = event.target;
+
+        setFormData(
+            { ...formData, [name] : value }
+        ); 
+        
+        // Validate Forms Dynamically
+        switch (name) {
+            case 'firstName':
+                if (value.length > 0) {
+                    setFormMessage({
+                        ...formMessage, firstNameMessage : '' 
+                    })
+                }
+                else {
+                    setFormMessage({
+                        ...formMessage, firstNameMessage : 'Please enter your First Name'
+                    })
+                }
+                break;
+
+            case 'lastName':
+                if (value.length > 0) {
+                    setFormMessage({
+                        ...formMessage, lastNameMessage : '' 
+                    })
+                }
+                else {
+                    setFormMessage({
+                        ...formMessage, lastNameMessage : 'Please enter your Last Name'
+                    })
+                }
+                break;
+                
+            case 'email':
+                if (value.length > 0) {
+                    setFormMessage({
+                        ...formMessage, emailMessage : '' 
+                    })
+                }
+                else {
+                    setFormMessage({
+                        ...formMessage, emailMessage : 'Please enter your Email'
+                    })
+                }
+                break;
+                
+            case 'password':
+                if (value.length > 7) {
+                    setFormMessage({
+                        ...formMessage, passwordMessage : '' 
+                    })
+                }
+                else {
+                    setFormMessage({
+                        ...formMessage, passwordMessage : 'Please enter your Password no less than 8 digits'
+                    })
+                }
+                break;
+                
+            case 'phoneNumber':
+                if (value.length === 10) {
+                    setFormMessage({
+                        ...formMessage, phoneNumberMessage : '' 
+                    })
+                }
+                else {
+                    setFormMessage({
+                        ...formMessage, phoneNumberMessage : 'Please enter your Phone Number equal to 10 digits'
+                    })
+                }
+                break;
+            default:
+                break;
+        }   
+    }
 
     function submitForm(e) {
         e.preventDefault();
@@ -19,35 +104,19 @@ export default function RegistrationForm() {
         const payload = Object.fromEntries(formData);  
 
         console.log(payload)
+        fetch("http://localhost:8080/user/add",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(payload)
+        }).then(() => {
+            console.log("New User Added Successfully")
+        })
+
+       
+            
     }
 
-    function handleChange(event) {
-        const { name, value } = event.target;
-
-        if (name == "firstName") {
-            if (value.length > 0) {
-                setFirstNameMessege('');
-            } else setFirstNameMessege(messegeList[0])
-        }
-        else if (name == "lastName") {
-            if (value.length > 0) {
-                setLastNameMessege('');
-            } else setLastNameMessege(messegeList[1])
-        }
-        else if (name == "email") {
-            if (value.length > 0) {
-                setEmailMessege('');
-            } else setEmailMessege(messegeList[2])
-        }
-        else {
-            if (value.length > 0) {
-                setPasswordMessege('');
-            } else setPasswordMessege(messegeList[3])
-        }
-        
-
-    
-    }
+   
 
     return (
         <>
@@ -57,7 +126,7 @@ export default function RegistrationForm() {
             <br></br>
             <input type = "text" name = "firstName" onChange = {handleChange} required/>
             <br></br>
-            <i>{firstNameMessege}</i>
+            <i>{formMessage.firstNameMessage}</i>
             <br>
             </br>
 
@@ -65,7 +134,7 @@ export default function RegistrationForm() {
             <br></br>
             <input type = "text" name = "lastName" onChange = {handleChange} required/>
             <br></br>
-            <i>{lastNameMessege}</i>
+            <i>{formMessage.lastNameMessage}</i>
             <br>
             </br>
 
@@ -73,7 +142,7 @@ export default function RegistrationForm() {
             <br></br>
             <input type = "text" name = "email" onChange = {handleChange} required/>
             <br></br>
-            <i>{emailMessege}</i>
+            <i>{formMessage.emailMessage}</i>
             <br>
             </br>
 
@@ -81,7 +150,15 @@ export default function RegistrationForm() {
             <br></br>
             <input type = "text" name = "password" onChange = {handleChange} required/>
             <br></br>
-            <i>{passwordMessege}</i>
+            <i>{formMessage.passwordMessage}</i>
+            <br>
+            </br>
+
+            <label>Phone Number</label>
+            <br></br>
+            <input type = "text" name = "phoneNumber" onChange = {handleChange} required/>
+            <br></br>
+            <i>{formMessage.phoneNumberMessage}</i>
             <br>
             </br>
            
@@ -92,3 +169,4 @@ export default function RegistrationForm() {
         </>
     )
 }
+        
