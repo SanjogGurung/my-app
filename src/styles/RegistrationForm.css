@@ -1,0 +1,162 @@
+body {
+    margin : 0;
+    padding: 0;
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+    font-family: "Inter", serif;
+    /* gap: 60px; */
+}
+
+.root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    gap: 60px;
+
+}
+
+
+.left-side {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+    gap: 30px;
+}
+
+@media (max-width: 835px) {
+    .left-side {
+        flex-direction: column;
+    }
+}
+
+
+
+
+
+.branding {
+    display: flex;
+    flex-direction: column;
+    gap:13px;
+}
+
+.logo {
+    letter-spacing: 0.314em; 
+    font-size: 34px;
+}
+
+.description {
+    font-size : 0.8rem;
+    opacity: 0.7;
+    width: 70%;
+    line-height: 1.2rem;
+    display: flex;
+}
+
+.right-side {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+@media (max-width: 845px) {
+    .first-row {
+        flex-direction: column;
+    }  
+}
+.first-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.first-row div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.first-row p {
+    padding: 0px;
+    margin: 0;
+}
+
+input {
+    border-radius: 5px;
+    border-style:  solid;
+    border-color: rgba(0, 0, 0, 0.351);
+    height: 25px;
+    width: 180px;
+    font-family: "Inter", serif;
+    padding: 5px;
+}
+
+em {
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: rgb(87, 87, 87);
+}
+
+@media (max-width: 590px) {
+    .root {
+        flex-direction: column;
+    }
+
+    .branding {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+} 
+
+.form-title {
+    letter-spacing: 0.314em;
+    font-size: 36px;
+}
+
+
+.submit-button {
+  background-color: #007bff; 
+  color: white;              
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button:hover {
+    background-color: #0056b3; 
+  }
+
+
+p, li {
+    text-align: left;
+}
+
+
+
+li {
+    margin-bottom: 5px;
+}
+
+.password-message {
+    margin: 20px;
+    margin-bottom: 10px;
+}
+
+ul {
+    margin: 0;
+}

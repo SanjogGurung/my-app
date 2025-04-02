@@ -1,0 +1,87 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  }
+
+  .search-container {
+    display: flex;
+    position: relative;
+  }
+
+  .search-form {
+    flex-direction: row;
+
+    input {
+    }
+    button {
+      border: 0;
+      background-color: white;
+      position: absolute;
+      right: 1%;
+      top: 25%;
+      bottom: 25%;
+      cursor: pointer;
+    }
+  }
+
+  
+  
+  .navbar-logo a {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+  }
+  
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar-links li a {
+    color: #000;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+  }
+  
+  .navbar-links li a:hover {
+    color: #007bff; /* Blue hover effect to match the Sign Up button */
+  }
+  
+  .navbar-auth {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .signup-btn, .login-btn {
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .signup-btn {
+    background-color: #007bff; /* Matching the blue from your form */
+    color: #fff;
+  }
+  
+  .login-btn {
+    background-color: #f0f0f0; /* Light gray for contrast */
+    color: #000;
+  }
+  
+  .signup-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+  }
+  
+  .login-btn:hover {
+    background-color: #d9d9d9; /* Slightly darker gray on hover */
+  }

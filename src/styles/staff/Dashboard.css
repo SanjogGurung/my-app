@@ -1,0 +1,15 @@
+.staff-dashboard {
+    padding: 20px;
+
+    .logo {
+        letter-spacing: 0.314em; 
+        font-size: 34px;
+        height: 70px;
+        box-shadow: 0  2px  rgba(0, 0, 0, 0.059);
+    }
+
+    .second-row {
+        display: flex;
+        
+    }
+}
