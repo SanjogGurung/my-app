@@ -117,7 +117,7 @@ export default function RegistrationForm() {
         // Submit form data
         const payload = { ...formData };
         try {
-            const response = await fetch("http://localhost:8081/user/add", {
+            const response = await fetch("http://localhost:8082/user/addUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -140,13 +140,13 @@ export default function RegistrationForm() {
     }
     
     return (
-        <div className="root"> 
+        <div className="register"> 
         <div className="left-side">
             <div className="person-thinking"> 
                 <img src={personThinkg} width="60px" alt="Person Thinking" />
             </div>
             <div className="branding"> 
-                <div className="logo">
+                <div className="logo-register">
                     SuSankhya
                 </div>
                 <div className="description"> 

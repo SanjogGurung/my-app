@@ -1,5 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import "../styles/Sidebar.css";
+import { useNavigate } from 'react-router-dom';
+
+import "../styles/staff/Sidebar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHouse,
@@ -8,73 +10,107 @@ import {
   faMobile,
   faTruck,
   faAppleAlt,
+  faPlusCircle
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function Sidebar() {
-  const location = useLocation();
-  const isActive = (path) => location.pathname === path;
+export default function Sidebar({ handleClick, sidebarState }) {
+  const navigate = useNavigate();
+
+  const {
+    isOverviewActive,
+    isUsersActive,
+    isProductsActive,
+    isAddProductActive,
+    isOrdersActive,
+    isCategoriesActive,
+    isBrandsActive,
+  } = sidebarState;
+
+  const handleNavigation = (item, path) => {
+    handleClick(item);
+    navigate(path);
+  };
+
 
   return (
     <div className="side-bar">
-      <Link
-        to="/staff/overview"
-        className={`overview ${isActive("/staff/overview") ? "active" : ""}`}
+      <button
+        onClick={() => handleNavigation("overview", "/staff/overview")}
+        className={`overview ${isOverviewActive ? "active" : ""}`}
+        aria-pressed={isOverviewActive}
       >
         <span className="icon-wrapper">
           <FontAwesomeIcon icon={faHouse} />
         </span>
         <span>Overview</span>
-      </Link>
+      </button>
 
-      <Link
-        to="/staff/users"
-        className={`users ${isActive("/staff/users") ? "active" : ""}`}
+      <button
+        onClick={() => handleNavigation("users", "/staff/users")}
+        className={`users ${isUsersActive ? "active" : ""}`}
+        aria-pressed={isUsersActive}
       >
         <span className="icon-wrapper">
           <FontAwesomeIcon icon={faCircleUser} />
         </span>
         <span>Users</span>
-      </Link>
+      </button>
 
-      <Link
-        to="/staff/products"
-        className={`products ${isActive("/staff/products") ? "active" : ""}`}
+      <button
+        onClick={() => handleNavigation("products", "/staff/products")}
+        className={`products ${isProductsActive ? "active" : ""}`}
+        aria-pressed={isProductsActive}
       >
         <span className="icon-wrapper">
           <FontAwesomeIcon icon={faMobile} />
         </span>
         <span>Products</span>
-      </Link>
+      </button>
 
-      <Link
-        to="/staff/orders"
-        className={`orders ${isActive("/staff/orders") ? "active" : ""}`}
+      <button
+        onClick={() => handleNavigation("addProduct", "/staff/addProduct")}
+        className={`addProduct ${isAddProductActive ? "active" : ""}`}
+        aria-pressed={isAddProductActive}
+      >
+        <span className="icon-wrapper">
+          <FontAwesomeIcon icon={faPlusCircle} />
+        </span>
+        <span>Add Product</span>
+      </button>
+
+      <button
+        onClick={() => handleNavigation("orders", "/staff/orders")}
+        className={`orders ${isOrdersActive ? "active" : ""}`}
+        aria-pressed={isOrdersActive}
       >
         <span className="icon-wrapper">
           <FontAwesomeIcon icon={faTruck} />
         </span>
         <span>Orders</span>
-      </Link>
+      </button>
 
-      <Link
-        to="/staff/categories"
-        className={`categories ${isActive("/staff/categories") ? "active" : ""}`}
+      <button
+        onClick={() => handleNavigation("categories", "/staff/categories")}
+        className={`categories ${isCategoriesActive ? "active" : ""}`}
+        aria-pressed={isCategoriesActive}
       >
         <span className="icon-wrapper">
           <FontAwesomeIcon icon={faList} />
         </span>
         <span>Categories</span>
-      </Link>
+      </button>
 
-      <Link
-        to="/staff/brands"
-        className={`brands ${isActive("/staff/brands") ? "active" : ""}`}
+      <button
+        onClick={() => handleNavigation("brands", "/staff/brands")}
+        className={`brands ${isBrandsActive ? "active" : ""}`}
+        aria-pressed={isBrandsActive}
       >
         <span className="icon-wrapper">
           <FontAwesomeIcon icon={faAppleAlt} />
         </span>
         <span>Brands</span>
-      </Link>
+      </button>
     </div>
   );
-}
+
+  }

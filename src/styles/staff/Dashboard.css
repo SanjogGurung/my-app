@@ -1,15 +1,111 @@
 .staff-dashboard {
+    padding: 0; /* Remove padding to avoid extra space */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure it fills the viewport */
+  }
+  
+  .logo {
+    letter-spacing: 0.314em;
+    font-size: 34px;
+    height: 90px; /* Match the sidebar's top: 90px */
+    box-shadow: 0 2px rgba(0, 0, 0, 0.059);
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 100;
+    width: 100%;
+    background-color: white;
+  }
+  
+  .second-row {
+    display: flex;
+    flex: 1; /* Take up remaining height */
+    gap: 20px; /* Fixed gap instead of percentage */
+    margin-top: 100px;
+    z-index: 1;
+  }
+  
+  .main-content {
+    flex: 1;
     padding: 20px;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    margin-left: 350px; /* Offset for fixed sidebar width */
 
-    .logo {
-        letter-spacing: 0.314em; 
-        font-size: 34px;
-        height: 70px;
-        box-shadow: 0  2px  rgba(0, 0, 0, 0.059);
-    }
+  }
+  
+  /* Styling for content components */
 
-    .second-row {
-        display: flex;
-        
-    }
+  
+  .overview-content h2,
+  .users-content h2,
+  .products-content h2,
+  .orders-content h2,
+  .categories-content h2,
+  .brands-content h2 {
+    margin-bottom: 10px;
+    color: #1e3a8a;
+  }
+  
+  /* Styling for tables */
+  .users-content table,
+  .products-content table,
+  .orders-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .users-content th,
+  .users-content td,
+  .products-content th,
+  .products-content td,
+  .orders-content th,
+  .orders-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .users-content th,
+  .products-content th,
+  .orders-content th {
+    background-color: #1e3a8a;
+    color: white;
+  }
+  
+  /* Styling for lists */
+  .categories-content ul,
+  .brands-content ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .categories-content li,
+  .brands-content li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Loading and error states */
+  .main-content > div {
+    font-size: 1.1em;
+    color: #333;
+  }
+  
+  .main-content > div.loading {
+    color: #1e3a8a;
+  }
+  
+  .main-content > div.error {
+    color: #d32f2f;
+  }
+
+  /* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 90px;
+  }
 }
