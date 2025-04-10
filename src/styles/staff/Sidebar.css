@@ -18,7 +18,8 @@
 .side-bar .brands,
 .side-bar .categories,
 .side-bar .orders,
-.side-bar .addProduct {
+.side-bar .addProduct,
+.side-bar .addWallpaper {
   color: white;
   font-size: 1.5em;
   display: flex;
@@ -38,7 +39,8 @@
 .side-bar .brands:hover,
 .side-bar .categories:hover,
 .side-bar .orders:hover,
-.side-bar .addProduct:hover {
+.side-bar .addProduct:hover,
+.side-bar .addWallpaper:hover {
   background-color: #1e6bff; /* Kept for contrast */
   padding-left: 25px;
   border-radius: 5px;
@@ -77,7 +79,8 @@
   .side-bar .brands,
   .side-bar .categories,
   .side-bar .orders,
-  .side-bar .addProduct {
+  .side-bar .addProduct,
+  .side-bar .addWallpaper {
     font-size: 1.2em;
     justify-content: center;
     padding: 10px;
@@ -89,7 +92,8 @@
   .side-bar .brands span:not(.icon-wrapper),
   .side-bar .categories span:not(.icon-wrapper),
   .side-bar .orders span:not(.icon-wrapper),
-  .side-bar .addProduct span:not(.icon-wrapper) {
+  .side-bar .addProduct span:not(.icon-wrapper),
+  .side-bar .addWallpaper span:not(.icon-wrapper) {
     display: none;
   }
 }

@@ -79,46 +79,46 @@ export default function LoginPage() {
     }
     
     return (
-        <div className="root">
-        <div className="left-side">
-            <div className="person-thinking"> 
-                <img src={personThinkg} width="60px" alt="Person Thinking" />
-            </div>
-            <div className="branding"> 
-                <div className="logo">
-                    SuSankhya
+        <div className="register">
+            <div className="left-side">
+                <div className="person-thinking"> 
+                    <img src={personThinkg} width="60px" alt="Person Thinking" />
                 </div>
-                <div className="description"> 
-                    <i>
-                        is an online mobile selling website where you can buy mobiles with best quality and deals
-                    </i>
-                </div>
-            </div>
-        </div>
-
-        <div className="right-side"> 
-            <div className = "form-title">
-                Sign In
-            </div>
-            <form onSubmit={submitForm}> 
-                <div className="first-row" style={{flexDirection : "column"}}> 
-                    <div>
-                        <p>Email</p>
-                        <input type="email" name="email" onChange={handleChange} required />
-                        <em>{formMessage.emailMessage}</em>
+                <div className="branding"> 
+                    <div className="logo-register">
+                        SuSankhya
                     </div>
-                    <div>
-                        <p>Password</p>
-                        <input type="password" name="password" onChange={handleChange} required />
-                        <em>{formMessage.passwordMessage}</em>
+                    <div className="description"> 
+                        <i>
+                            is an online mobile selling website where you can buy mobiles with best quality and deals
+                        </i>
                     </div>
                 </div>
+            </div>
 
-                <div className="first-row"> 
-                        <button type = "submit" className='submit-button'>Sign In</button>
+            <div className="right-side"> 
+                <div className = "form-title">
+                    Sign In
                 </div>
-            </form>
-        </div>
+                <form onSubmit={submitForm}> 
+                    <div className="first-row" style={{flexDirection : "column"}}> 
+                        <div>
+                            <p>Email</p>
+                            <input type="email" name="email" onChange={handleChange} required />
+                            <em>{formMessage.emailMessage}</em>
+                        </div>
+                        <div>
+                            <p>Password</p>
+                            <input type="password" name="password" onChange={handleChange} required />
+                            <em>{formMessage.passwordMessage}</em>
+                        </div>
+                    </div>
+
+                    <div className="first-row"> 
+                            <button type = "submit" className='submit-button'>Sign In</button>
+                    </div>
+                </form>
+            </div>
     </div>
     )
 }

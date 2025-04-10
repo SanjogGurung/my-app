@@ -7,19 +7,31 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const value = 1;
 
-  const handleDelete = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete this ${name}}?`)) {
+  const handleDelete = async (id) => {
       try {
-        await axios.delete(`http://localhost:8082/product/${id}`);
         setProducts(products.filter(product => product.id !== id));
         alert("Product deleted successfully!");
       } catch (err) {
         console.error("Delete Error:", err);
         alert("Failed to delete product.");
       }
-    }
   };
+
+  // const handleEdit = async (id, updatedData) => {
+  //   try {
+  //     const response = await axios.put(`http://localhost:8082/product/${id}`, updatedData);
+      
+  //     setProducts(products.map(product => 
+  //       product.id === id ? { ...product, ...response.data } : product
+  //     ));      
+
+  //   } catch (err) {
+  //     console.error("Edit error: ", err);
+  //     alert("Failed to edit product.");
+  //   }
+  // };
 
   
   useEffect(() => {
@@ -54,12 +66,10 @@ const ProductList = () => {
       {products.length > 0 ? (
         products.map((product) => (
           <ProductCard
-            id={product.id}
-            image={`http://localhost:8082/product/${product.id}/image`} 
-            name={product.name}
-            price={product.price}
+            key={product.id}
+            product = {product}
             isStaffPanel = {true}
-            onDelete={handleDelete}
+            onDelete = {handleDelete}
           />
         ))
       ) : (

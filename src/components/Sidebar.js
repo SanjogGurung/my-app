@@ -10,7 +10,8 @@ import {
   faMobile,
   faTruck,
   faAppleAlt,
-  faPlusCircle
+  faPlusCircle,
+  faPhotoFilm
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Sidebar({ handleClick, sidebarState }) {
@@ -21,6 +22,7 @@ export default function Sidebar({ handleClick, sidebarState }) {
     isUsersActive,
     isProductsActive,
     isAddProductActive,
+    isAddWallpaperActive,
     isOrdersActive,
     isCategoriesActive,
     isBrandsActive,
@@ -76,6 +78,17 @@ export default function Sidebar({ handleClick, sidebarState }) {
           <FontAwesomeIcon icon={faPlusCircle} />
         </span>
         <span>Add Product</span>
+      </button>
+
+      <button
+        onClick={() => handleNavigation("addWallpaper", "/staff/addWallpaper")}
+        className={`addWallpaper ${isAddWallpaperActive ? "active" : ""}`}
+        aria-pressed={isAddWallpaperActive}
+      >
+        <span className="icon-wrapper">
+          <FontAwesomeIcon icon={faPhotoFilm} />
+        </span>
+        <span>Add Wallpaper</span>
       </button>
 
       <button

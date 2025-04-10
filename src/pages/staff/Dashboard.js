@@ -9,11 +9,19 @@ import UsersList from "./components/UsersList.js";
 
 
 export default function Dashboard() {
-  const [activeItem, setActiveItem] = useState("overview");
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const location = useLocation();
+  const { pathname } = useLocation();
+
+  const [activeItem, setActiveItem] = useState(() => {
+    if (pathname === "/staff/overview") return "overview";
+    if (pathname === "/staff/users") return "users";
+    if (pathname.startsWith("/staff/products")) return "products"; 
+    if (pathname === "/staff/addProduct") return "addProduct";
+    if (pathname === "/staff/orders") return "orders";
+    if (pathname === "/staff/categories") return "categories";
+    if (pathname === "/staff/brands") return "brands";
+    if (pathname === "/staff/addWallpaper") return "addWallpaper";
+    return "overview"; 
+  });
 
   const handleClick = (item) => {
     setActiveItem(item);
@@ -26,20 +34,9 @@ export default function Dashboard() {
     isOrdersActive: activeItem === "orders",
     isCategoriesActive: activeItem === "categories",
     isBrandsActive: activeItem === "brands",
-    isAddProductActive: activeItem === "addProduct"
+    isAddProductActive: activeItem === "addProduct",
+    isAddWallpaperActive: activeItem === "addWallPaper"
   };
-
-  // Sync activeItem with the current route
-  useEffect(() => {
-    const path = location.pathname;
-    if (path === "/staff/overview") setActiveItem("overview");
-    else if (path === "/staff/users") setActiveItem("users");
-    else if (path === "/staff/products") setActiveItem("products");
-    else if (path === "/staff/addProduct") setActiveItem("addProduct");
-    else if (path === "/staff/orders") setActiveItem("orders");
-    else if (path === "/staff/categories") setActiveItem("categories");
-    else if (path === "/staff/brands") setActiveItem("brands");
-  }, [location]);
 
   return (
     <div className="staff-dashboard">
@@ -81,10 +78,7 @@ export function Products({ data }) {
 
 export function Users() {
   return (
-    <div className="users-content">
-      <h2>Users</h2>
       <UsersList />
-    </div>
   );
 }
 

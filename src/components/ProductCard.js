@@ -1,62 +1,104 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
+import EditProductFormPage from "./../pages/staff/EditProductFormPage"
 import "../styles/ProductCard.css";
+import { Link } from "react-router-dom"; // Add this for routing
 
 const ProductCard = ({
-  image,
-  name,
-  price,
-  id, 
-  isOnSale = false,
-  discountPercentage = 0,
+  product,
   isStaffPanel = false,
-  onEdit,
-  onDelete
+  onDelete,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const id = product.id;
+
   const discountedPrice =
-    isOnSale && discountPercentage > 0
-      ? price * (1 - discountPercentage / 100)
-      : price;
+    product.isOnSale && product.discountPercentage > 0
+      ? product.price * (1 - product.discountPercentage / 100)
+      : product.price;
 
-
-  // Handle Add to Cart (customer view)
-  const handleAddToCart = () => {
-    // Add to cart logic (e.g., Redux, API call)
-    console.log(`Added ${name} to cart`);
-    alert(`${name} added to cart!`);
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${product.id}?`)) {
+      try {
+        await axios.delete(`http://localhost:8082/product/${product.name}`);
+        alert("Product deleted successfully!");
+        onDelete(product.id);
+      } catch (err) {
+        console.error("Delete Error:", err);
+        alert("Failed to delete product.");
+      }
+    }
   };
+
+  const handleAddToCart = () => {
+    console.log(`Added ${product.name} to cart`);
+    alert(`${product.name} added to cart!`);
+  };
+
+  // const handleEditSave = (updatedProduct) => {
+  //   onEdit(updatedProduct);
+  //   setIsEditing(false);
+  // };
+
+  // const handleEditCancel = () => {
+  //   setIsEditing(false);
+  // };
+
+  // if (isEditing && isStaffPanel) {
+  //   return (
+  //     <EditProductFormPage
+  //       product={{
+  //         id,
+  //         name,
+  //         price,
+  //         isOnSale,
+  //         discountPercentage,
+  //         // imageName1 : `http://localhost:8082/product/${id}/image/1`,
+  //         // imageName2 : `http://localhost:8082/product/${id}/image/2`,
+  //         spec,
+  //       }}
+
+  //       onSave={handleEditSave}
+  //       onCancel={handleEditCancel}
+  //     />
+  //   );
+// }
 
   return (
     <div className="product-card">
-      {isOnSale && <div className="sale-badge">Sale</div>}
+      {product.isOnSale && <div className="sale-badge">Sale</div>}
       <div className="product-image">
-        <img src={image} alt={name} />
+        <img src={`http://localhost:8082/product/${id}/image/1`} alt={product.name} />
       </div>
       <div className="product-details">
-        <h3 className="product-name">{name}</h3>
+        <h3 className="product-name">{product.name}</h3>
         <div className="price-container">
-          {isOnSale && discountPercentage > 0 ? (
+          {product.isOnSale && product.discountPercentage > 0 ? (
             <>
-              <p className="product-price original-price">${price.toFixed(2)}</p>
-              <p className="product-price discounted-price">${discountedPrice.toFixed(2)}</p>
+              <p className="product-price original-price">${product.price.toFixed(2)}</p>
+              <p className="product-price discounted-price">
+                ${discountedPrice.toFixed(2)}
+              </p>
             </>
           ) : (
-            <p className="product-price">${price.toFixed(2)}</p>
+            <p className="product-price">${product.price.toFixed(2)}</p>
           )}
         </div>
-        {isOnSale && discountPercentage > 0 && (
-          <p className="discount-info">Save {discountPercentage}%</p>
+        {product.isOnSale && product.discountPercentage > 0 && (
+          <p className="discount-info">Save {product.discountPercentage}%</p>
         )}
         {isStaffPanel ? (
           <div className="staff-actions">
-            <button
+            <Link
+              to={`/staff/products/edit/${product.id}`}
+              state={{
+                product
+              }}
               className="edit-btn"
-              onClick={() => onEdit({ id, name, price, image, isOnSale, discountPercentage })}
-            >
-              Edit
-            </button>
-            <button className="delete-btn" onClick={() => onDelete(id)}>
+            >Edit</Link>
+            <button className="delete-btn" onClick={handleDelete}>
               Delete
             </button>
           </div>
@@ -68,27 +110,6 @@ const ProductCard = ({
       </div>
     </div>
   );
-};
-
-// PropTypes for type checking
-ProductCard.propTypes = {
-  id: PropTypes.number, // Required for staff actions
-  image: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  price: PropTypes.number.isRequired,
-  isOnSale: PropTypes.bool,
-  discountPercentage: PropTypes.number,
-  isStaffPanel: PropTypes.bool,
-  onEdit: PropTypes.func,
-  onDelete: PropTypes.func,
-};
-
-ProductCard.defaultProps = {
-  isOnSale: false,
-  discountPercentage: 0,
-  isStaffPanel: false,
-  onEdit: () => {},
-  onDelete: () => {},
 };
 
 export default ProductCard;

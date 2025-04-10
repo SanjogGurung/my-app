@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import "../../../styles/staff/AddProductForm.css"; // Ensure this is included
+import "../../../styles/staff/AddProductForm.css";
 
 const AddProductForm = () => {
   const categoryOptions = [
@@ -17,7 +17,8 @@ const AddProductForm = () => {
     category: "",
     releaseDate: "",
     quantity: "",
-    img1: null, 
+    description: "", // New field
+    img1: null,
     img2: null,
     img3: null,
     img4: null,
@@ -37,7 +38,7 @@ const AddProductForm = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Handle text and checkbox inputs
+  // Handle text, checkbox, and textarea inputs
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name.startsWith("spec.")) {
@@ -63,11 +64,12 @@ const AddProductForm = () => {
     if (files && files[0]) {
       setFormData((prev) => ({
         ...prev,
-        [name]: files[0], // Store the File object
+        [name]: files[0],
       }));
     }
   };
 
+  // Submit Form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -88,26 +90,21 @@ const AddProductForm = () => {
             }).split("/").join("-")
           : null,
         quantity: parseInt(formData.quantity) || 0,
+        description: formData.description, // New field
         price: parseFloat(formData.price) || 0.0,
         isAvailable: formData.isAvailable,
         spec: formData.spec,
       };
       formDataToSend.append("product", JSON.stringify(productData));
-      
+
       if (formData.img1) formDataToSend.append("img1", formData.img1);
       if (formData.img2) formDataToSend.append("img2", formData.img2);
       if (formData.img3) formDataToSend.append("img3", formData.img3);
       if (formData.img4) formDataToSend.append("img4", formData.img4);
 
-      // const token = localStorage.getItem("authToken");
-      // const config = {
-      //   headers: {
-      //     ...(token && { Authorization: `Bearer ${token}` }),
-      //     "Content-Type": "multipart/form-data", // Required for FormData
-      //   },
-      // };
-
-      const response = await axios.post("http://localhost:8082/product/addProduct", formDataToSend);
+      const response = await axios.post("http://localhost:8082/product/addProduct", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       setSuccess("Product added successfully!");
       setFormData({
@@ -116,6 +113,7 @@ const AddProductForm = () => {
         category: "",
         releaseDate: "",
         quantity: "",
+        description: "", // Reset new field
         img1: null,
         img2: null,
         img3: null,
@@ -171,7 +169,8 @@ const AddProductForm = () => {
             name="category"
             value={formData.category}
             onChange={handleInputChange}
-            required>
+            required
+          >
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -197,6 +196,16 @@ const AddProductForm = () => {
             onChange={handleInputChange}
             min="0"
             required
+          />
+        </div>
+        <div>
+          <label>Description:</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            rows="4"
+            placeholder="Enter product description here..."
           />
         </div>
         <div>
