@@ -6,7 +6,10 @@ import AddProductForm from "./components/AddProductForm.js";
 import axios from "axios";
 import { useLocation, Routes, Route, Outlet } from "react-router-dom";
 import UsersList from "./components/UsersList.js";
+import Wallpapers from "./components/Wallpapers.js";
+import EditProductFormPage from "./EditProductFormPage.js";
 
+// Wallpapers component with add and delete functionality
 
 export default function Dashboard() {
   const { pathname } = useLocation();
@@ -14,13 +17,13 @@ export default function Dashboard() {
   const [activeItem, setActiveItem] = useState(() => {
     if (pathname === "/staff/overview") return "overview";
     if (pathname === "/staff/users") return "users";
-    if (pathname.startsWith("/staff/products")) return "products"; 
+    if (pathname.startsWith("/staff/products")) return "products";
     if (pathname === "/staff/addProduct") return "addProduct";
     if (pathname === "/staff/orders") return "orders";
     if (pathname === "/staff/categories") return "categories";
     if (pathname === "/staff/brands") return "brands";
     if (pathname === "/staff/addWallpaper") return "addWallpaper";
-    return "overview"; 
+    return "overview";
   });
 
   const handleClick = (item) => {
@@ -28,14 +31,14 @@ export default function Dashboard() {
   };
 
   const sidebarState = {
-    isOverviewActive: activeItem === "overview", // Inital True | Later False
-    isUsersActive: activeItem === "users", 
+    isOverviewActive: activeItem === "overview",
+    isUsersActive: activeItem === "users",
     isProductsActive: activeItem === "products",
     isOrdersActive: activeItem === "orders",
     isCategoriesActive: activeItem === "categories",
     isBrandsActive: activeItem === "brands",
     isAddProductActive: activeItem === "addProduct",
-    isAddWallpaperActive: activeItem === "addWallPaper"
+    isAddWallpaperActive: activeItem === "addWallpaper",
   };
 
   return (
@@ -44,13 +47,24 @@ export default function Dashboard() {
       <div className="second-row">
         <Sidebar handleClick={handleClick} sidebarState={sidebarState} />
         <div className="main-content">
-          <Outlet />
+          <Routes>
+            <Route path="overview" element={<Overview />} />
+            <Route path="users" element={<Users />} />
+            <Route path="products" element={<Products />} />
+            <Route path="addProduct" element={<AddProductForm />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="brands" element={<Brands />} />
+            <Route path="addWallpaper" element={<Wallpapers />} />
+            <Route path="products/edit/:id" element={<EditProductFormPage />} />  
+          </Routes>
         </div>
       </div>
     </div>
   );
 }
 
+// Existing components (unchanged)
 export function Overview({ data }) {
   return (
     <div className="overview-content">
@@ -77,9 +91,7 @@ export function Products({ data }) {
 }
 
 export function Users() {
-  return (
-      <UsersList />
-  );
+  return <UsersList />;
 }
 
 export function Orders({ data }) {

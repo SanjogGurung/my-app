@@ -1,28 +1,27 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import EditProductFormPage from "./../pages/staff/EditProductFormPage"
+import { Link } from "react-router-dom";
 import "../styles/ProductCard.css";
-import { Link } from "react-router-dom"; // Add this for routing
 
 const ProductCard = ({
   product,
   isStaffPanel = false,
   onDelete,
+  id
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-
-  const id = product.id;
 
   const discountedPrice =
     product.isOnSale && product.discountPercentage > 0
       ? product.price * (1 - product.discountPercentage / 100)
       : product.price;
 
-  const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete ${product.id}?`)) {
+  const handleDelete = async (e) => {
+    e.preventDefault(); // Prevent Link navigation
+    if (window.confirm(`Are you sure you want to delete ${id}?`)) {
       try {
-        await axios.delete(`http://localhost:8082/product/${product.name}`);
+        await axios.delete(`http://localhost:8082/product/${id}`);
         alert("Product deleted successfully!");
         onDelete(product.id);
       } catch (err) {
@@ -32,41 +31,13 @@ const ProductCard = ({
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // Prevent Link navigation
     console.log(`Added ${product.name} to cart`);
     alert(`${product.name} added to cart!`);
   };
 
-  // const handleEditSave = (updatedProduct) => {
-  //   onEdit(updatedProduct);
-  //   setIsEditing(false);
-  // };
-
-  // const handleEditCancel = () => {
-  //   setIsEditing(false);
-  // };
-
-  // if (isEditing && isStaffPanel) {
-  //   return (
-  //     <EditProductFormPage
-  //       product={{
-  //         id,
-  //         name,
-  //         price,
-  //         isOnSale,
-  //         discountPercentage,
-  //         // imageName1 : `http://localhost:8082/product/${id}/image/1`,
-  //         // imageName2 : `http://localhost:8082/product/${id}/image/2`,
-  //         spec,
-  //       }}
-
-  //       onSave={handleEditSave}
-  //       onCancel={handleEditCancel}
-  //     />
-  //   );
-// }
-
-  return (
+  const cardContent = (
     <div className="product-card">
       {product.isOnSale && <div className="sale-badge">Sale</div>}
       <div className="product-image">
@@ -93,11 +64,11 @@ const ProductCard = ({
           <div className="staff-actions">
             <Link
               to={`/staff/products/edit/${product.id}`}
-              state={{
-                product
-              }}
+              state={{ product }}
               className="edit-btn"
-            >Edit</Link>
+            >
+              Edit
+            </Link>
             <button className="delete-btn" onClick={handleDelete}>
               Delete
             </button>
@@ -110,6 +81,28 @@ const ProductCard = ({
       </div>
     </div>
   );
+
+  return isStaffPanel ? (
+    cardContent
+  ) : (
+    <Link to={`/product/description/${id}`} className="product-card-link">
+      {cardContent}
+    </Link>
+  );
+};
+
+ProductCard.propTypes = {
+  product: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    isOnSale: PropTypes.bool,
+    discountPercentage: PropTypes.number,
+    spec: PropTypes.object,
+  }).isRequired,
+  isStaffPanel: PropTypes.bool,
+  onDelete: PropTypes.func,
+  id: PropTypes.number.isRequired,
 };
 
 export default ProductCard;

@@ -2,9 +2,22 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
-  width: 200px;
+  width: 250px;
+  height: 350px;
   position: relative;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: transform 0.2s;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card-link {
+  text-decoration: none;
+  color: inherit;
 }
 
 .sale-badge {
@@ -27,11 +40,30 @@
 
 .product-details {
   text-align: center;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .product-name {
   font-size: 1.2em;
   margin: 10px 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  width: 100%;
+  animation: slide 8s linear infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .price-container {
@@ -51,18 +83,13 @@
 .discounted-price {
   color: #ff4444;
   font-weight: bold;
+  font-size: 1.1em;
 }
 
 .discount-info {
   color: #28a745;
   font-size: 0.9em;
   margin: 5px 0;
-}
-
-.product-description {
-  font-size: 0.9em;
-  color: #555;
-  margin: 10px 0;
 }
 
 .add-to-cart-btn,
@@ -77,12 +104,12 @@
 }
 
 .add-to-cart-btn {
-  background-color: #28a745;
+  background-color: #007bff;
   color: white;
 }
 
 .add-to-cart-btn:hover {
-  background-color: #218838;
+  background-color: #0056b3;
 }
 
 .staff-actions {
@@ -94,13 +121,12 @@
 .edit-btn {
   background-color: #007bff;
   color: white;
-  padding: 12px 24px;
+  padding: 8px 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  margin: 5px 0;
   text-align: center;
   text-decoration: none;
   display: inline-block;

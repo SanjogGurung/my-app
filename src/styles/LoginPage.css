@@ -1,0 +1,136 @@
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f9fc;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .login-container {
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  .image-section {
+    flex: 1;
+    background-color: #1a3c6d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .thinking-person {
+    width: 80%;
+    max-width: 300px;
+  }
+  
+  .form-section {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .login-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a3c6d;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    font-weight: 500;
+    color: #1a3c6d;
+    margin-bottom: 8px;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #4a5568;
+  }
+  
+  .form-group em {
+    font-size: 12px;
+    color: #e53e3e;
+    margin-top: 4px;
+    min-height: 16px;
+  }
+  
+  .login-button {
+    padding: 12px;
+    background-color: #1a3c6d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .register-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #4a5568;
+  }
+  
+  .register-link a {
+    color: #1a3c6d;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .register-link a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 600px) {
+    .login-container {
+      flex-direction: column;
+    }
+  
+    .image-section {
+      padding: 20px;
+    }
+  
+    .form-section {
+      padding: 20px;
+    }
+  
+    .login-title {
+      font-size: 24px;
+    }
+  
+    .form-group input,
+    .login-button {
+      font-size: 14px;
+    }
+  }

@@ -1,0 +1,53 @@
+.discounted-products {
+    background-color: #f7f9fc;
+    padding: 40px 0;
+  }
+  
+  .discounted-title {
+    font-size: 2em;
+    font-weight: bold;
+    color: #1a3c6d;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .carousel-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .carousel-item {
+    padding: 0 10px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .no-products {
+    text-align: center;
+    color: #4a5568;
+    font-size: 1.2em;
+  }
+  
+  .react-multi-carousel-item {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .react-multi-carousel-list {
+    padding-bottom: 20px;
+  }
+  
+  .react-multi-carousel-arrow {
+    background-color: #1a3c6d;
+    border-radius: 50%;
+    padding: 10px;
+    transition: background-color 0.2s;
+  }
+  
+  .react-multi-carousel-arrow:hover {
+    background-color: #15325a;
+  }
+  
+  .react-multi-carousel-arrow::before {
+    color: #fff;
+  }
