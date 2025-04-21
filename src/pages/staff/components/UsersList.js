@@ -4,22 +4,33 @@ import axios from "axios";
 
 const UsersList = () => {
   const [users, setUsers] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const token = localStorage.getItem("authToken"); // Adjust based on your auth
-        const response = await axios.get("http://localhost:8082/user/users");
-        setUsers(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError(`Failed to fetch users: ${err.message}`);
-        setLoading(false);
-        console.error(err);
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get("http://localhost:8082/user/all", 
+          {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+        )
+        ;
+        if (response && response.data) {
+          setUsers(response.data); 
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setLoading(false); // Add this line 
+        // You might want to set some error state here
+        setError("Failed to fetch users"); // Example error handling
       }
     };
     fetchUsers();
@@ -51,8 +62,11 @@ const UsersList = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
+              <th>FirstName</th>
+              <th>LastName</th>
               <th>Email</th>
+              <th>Phone</th>
+              <th>role</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -60,8 +74,11 @@ const UsersList = () => {
             {users.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
-                <td>{user.name}</td>
+                <td>{user.firstName}</td>
+                <td>{user.lastName}</td>
                 <td>{user.email}</td>
+                <td>{user.phoneNumber}</td>
+                <td>{user.role}</td>
                 <td>
                   <button onClick={() => handleDelete(user.id)}>Delete</button>
                 </td>

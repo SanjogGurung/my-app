@@ -47,17 +47,7 @@ export default function Dashboard() {
       <div className="second-row">
         <Sidebar handleClick={handleClick} sidebarState={sidebarState} />
         <div className="main-content">
-          <Routes>
-            <Route path="overview" element={<Overview />} />
-            <Route path="users" element={<Users />} />
-            <Route path="products" element={<Products />} />
-            <Route path="addProduct" element={<AddProductForm />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="categories" element={<Categories />} />
-            <Route path="brands" element={<Brands />} />
-            <Route path="addWallpaper" element={<Wallpapers />} />
-            <Route path="products/edit/:id" element={<EditProductFormPage />} />  
-          </Routes>
+          <Outlet />
         </div>
       </div>
     </div>
@@ -81,11 +71,11 @@ export function Overview({ data }) {
   );
 }
 
-export function Products({ data }) {
+export function Products() {
   return (
     <div className="products-content">
       <h2>Products</h2>
-      <ProductList />
+      <ProductList isStaffPanel = {true}/>
     </div>
   );
 }

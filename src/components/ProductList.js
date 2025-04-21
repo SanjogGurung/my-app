@@ -5,7 +5,7 @@ import "../styles/ProductList.css";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productsSlice";
 
-const ProductList = () => {
+const ProductList = ({isStaffPanel = false}) => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const loading = useSelector((state) => state.products.isLoading);
@@ -34,7 +34,7 @@ const ProductList = () => {
                   <ProductCard
                       key={product.id}
                       product={product}
-                      isStaffPanel={false}
+                      isStaffPanel={isStaffPanel}
                       onDelete={handleDelete}
                       id = {product.id}
                   />

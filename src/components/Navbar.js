@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import { FaSearch, FaShoppingCart, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
+import UserProfile from '../pages/UserProfile';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn); 
+  const isLoggedIn = useSelector((state) => state.auth.isAuthenticated); 
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -80,6 +81,7 @@ export default function Navbar() {
 
         <div className="navbar-auth">
           <Link to="/cart" className="cart-btn">
+            {/* <div className='cart-number'>2</div> */}
             <FaShoppingCart />
           </Link>
           <div className="profile-btn" onClick={handleProfileClick}>

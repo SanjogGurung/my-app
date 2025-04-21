@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addItemToCart } from "../redux/slices/cartSlice";
 import "../styles/ProductCard.css";
+import debounce from 'lodash.debounce';
 
 const ProductCard = ({
   product,
@@ -11,6 +14,9 @@ const ProductCard = ({
   id
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const discountedPrice =
     product.isOnSale && product.discountPercentage > 0
@@ -18,7 +24,7 @@ const ProductCard = ({
       : product.price;
 
   const handleDelete = async (e) => {
-    e.preventDefault(); // Prevent Link navigation
+    e.preventDefault();
     if (window.confirm(`Are you sure you want to delete ${id}?`)) {
       try {
         await axios.delete(`http://localhost:8082/product/${id}`);
@@ -31,14 +37,41 @@ const ProductCard = ({
     }
   };
 
+  const debouncedAddToCart = useCallback(
+    debounce((item) => {
+      console.log('Dispatching addItemToCart with:', item);
+      dispatch(addItemToCart(item));
+    }, 300),
+    [dispatch]
+  );
+
   const handleAddToCart = (e) => {
-    e.preventDefault(); // Prevent Link navigation
-    console.log(`Added ${product.name} to cart`);
-    alert(`${product.name} added to cart!`);
+    e.stopPropagation(); // Still a good practice on the button itself
+    if (isAuthenticated) {
+      const item = {
+        productId: product.id,
+        productName: product.name,
+        price: product.isOnSale && product.discountPercentage ? product.discountedPrice : product.price,
+        quantity: 1,
+      };
+      debouncedAddToCart(item);
+      alert(`Product ${product.name} added successfully`);
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const handleCardClick = (event) => {
+    // Check if the clicked element has the class 'add-to-cart-btn' or 'delete-btn'
+    if (!event.target.classList.contains('add-to-cart-btn') &&
+        !event.target.classList.contains('delete-btn') &&
+        !event.target.closest('.staff-actions')) { // Prevent navigation when clicking staff actions
+      navigate(`/product/description/${id}`);
+    }
   };
 
   const cardContent = (
-    <div className="product-card">
+    <div className="product-card-content">
       {product.isOnSale && <div className="sale-badge">Sale</div>}
       <div className="product-image">
         <img src={`http://localhost:8082/product/${id}/image/1`} alt={product.name} />
@@ -47,12 +80,10 @@ const ProductCard = ({
         <h3 className="product-name">{product.name}</h3>
         <div className="price-container">
           {product.isOnSale && product.discountPercentage > 0 ? (
-            <>
-              <p className="product-price original-price">${product.price.toFixed(2)}</p>
-              <p className="product-price discounted-price">
-                ${discountedPrice.toFixed(2)}
-              </p>
-            </>
+            <p className="product-price on-sale">
+              <span className="original-price">${product.price.toFixed(2)}</span>
+              <span className="discounted-price">${discountedPrice.toFixed(2)}</span>
+            </p>
           ) : (
             <p className="product-price">${product.price.toFixed(2)}</p>
           )}
@@ -74,7 +105,10 @@ const ProductCard = ({
             </button>
           </div>
         ) : (
-          <button className="add-to-cart-btn" onClick={handleAddToCart}>
+          <button
+            className="add-to-cart-btn"
+            onClick={handleAddToCart}
+          >
             Add to Cart
           </button>
         )}
@@ -82,12 +116,10 @@ const ProductCard = ({
     </div>
   );
 
-  return isStaffPanel ? (
-    cardContent
-  ) : (
-    <Link to={`/product/description/${id}`} className="product-card-link">
+  return (
+    <div className="product-card-link-wrapper" onClick={handleCardClick}>
       {cardContent}
-    </Link>
+    </div>
   );
 };
 

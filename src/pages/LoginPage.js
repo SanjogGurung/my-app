@@ -36,7 +36,7 @@ function LoginPage() {
       if (user.role === 'ADMIN') {
         navigate('/admin-panel');
       } else if (user.role === 'STAFF') {
-        navigate('/staff-panel');
+        navigate('/staff');
       } else if (user.role === 'USER') {
         navigate('/home');
       }

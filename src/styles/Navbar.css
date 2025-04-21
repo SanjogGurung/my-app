@@ -102,6 +102,11 @@
   align-items: center;
 }
 
+.cart-btn {
+  position: relative;
+}
+
+
 .cart-btn, .profile-btn {
   text-decoration: none;
   padding: 10px;
@@ -114,6 +119,22 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.3s ease;
+
+  .cart-number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: red;
+    color: white;
+    font-size: 0.7em;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-radius: 80px;
+    width: 20px;
+    height: 20px;
+
+  }
 }
 
 .cart-btn:hover, .profile-btn:hover {
