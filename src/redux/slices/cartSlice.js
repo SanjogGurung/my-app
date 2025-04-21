@@ -198,6 +198,8 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(addItemToCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
         const newItem = action.payload;
         console.log('addItemToCart fulfilled:', newItem);
         if (!newItem.id || typeof newItem.price !== 'number' || isNaN(newItem.price)) {
@@ -238,6 +240,8 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(incrementItemQuantity.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
         const newItem = action.payload;
         console.log('incrementItemQuantity fulfilled:', newItem);
         if (!newItem.id || typeof newItem.price !== 'number' || isNaN(newItem.price)) {
@@ -278,6 +282,8 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(removeItemFromCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
         const id = action.payload;
         const existingItem = state.items.find((item) => item.id === id);
         if (!existingItem) {
@@ -311,6 +317,8 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteItemFromCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
         const id = action.payload;
         const existingItem = state.items.find((item) => item.id === id);
         if (!existingItem) {

@@ -1,33 +1,81 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from '../../axiosConfig';
+import { jwtDecode } from 'jwt-decode';
 
+// Login thunk
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:8082/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        return rejectWithValue(errorData.message || 'Invalid credentials');
-      }
-      const data = await response.json();
+      console.log('Logging in with credentials:', credentials);
+      const response = await axios.post('http://localhost:8082/user/login', credentials);
+      console.log('Login response:', response.data);
 
-      if (data && data.token) {
-        localStorage.setItem('authToken', data.token);
+      if (response.data && response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        console.log('Token saved to localStorage:', response.data.token.substring(0, 20) + '...');
+        if (!localStorage.getItem('authToken')) {
+          console.error('Failed to persist authToken in localStorage');
+          return rejectWithValue('Failed to save token');
+        }
+
+        // Extract user data from token
+        const decoded = jwtDecode(response.data.token);
+        const user = {
+          id: decoded.id,
+          email: decoded.sub,
+          role: decoded.role.replace('ROLE_', '').toLowerCase(), // Ensure 'user'
+        };
+        console.log('User data from token:', user);
+        return { token: response.data.token, user };
       } else {
-        console.warn('Token not found in login response:', data);
+        console.warn('Token not found in login response:', response.data);
         return rejectWithValue('Token not received from server');
       }
-      return data;
     } catch (error) {
-      return rejectWithValue('Network error');
+      console.error('Login error:', error.response?.status, error.response?.data);
+      return rejectWithValue(error.response?.data?.message || 'Invalid credentials');
     }
   }
 );
+
+// Initialize auth state on app load
+export const initializeAuth = createAsyncThunk(
+  'auth/initializeAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      console.log('Checking authToken in localStorage:', token ? 'Present' : 'Missing');
+      if (!token) {
+        return rejectWithValue('No token found');
+      }
+
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      console.log('Token decoded:', decoded);
+      if (decoded.exp < currentTime) {
+        console.log('Token expired, exp:', decoded.exp, 'currentTime:', currentTime);
+        localStorage.removeItem('authToken');
+        return rejectWithValue('Token expired');
+      }
+
+      // Use token claims for user data
+      const user = {
+        id: decoded.id,
+        email: decoded.sub,
+        role: decoded.role.replace('ROLE_', '').toLowerCase(), // Ensure 'user'
+      };
+      console.log('User data from token:', user);
+      return { token, user };
+    } catch (error) {
+      console.error('initializeAuth error:', error);
+      localStorage.removeItem('authToken');
+      return rejectWithValue('Invalid token or decode error');
+    }
+  }
+);
+
+// Update user thunk
 export const updateUser = createAsyncThunk(
   'auth/updateUser',
   async ({ userData, photo }, { getState, rejectWithValue }) => {
@@ -43,26 +91,24 @@ export const updateUser = createAsyncThunk(
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Add Bearer token
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      return response.data; // axios automatically parses JSON
+      return response.data;
     } catch (error) {
+      console.error('updateUser error:', error.response?.status, error.response?.data);
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         return rejectWithValue(error.response.data.message || 'Failed to update user');
       } else if (error.request) {
-        // The request was made but no response was received
         return rejectWithValue('Network error: No response from server');
       } else {
-        // Something happened in setting up the request that triggered an Error
         return rejectWithValue('Request setup error');
       }
     }
   }
 );
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -78,6 +124,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.error = null;
+      localStorage.removeItem('authToken');
     },
   },
   extraReducers: (builder) => {
@@ -91,19 +138,46 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        console.log('login.fulfilled: Updated auth state:', {
+          isAuthenticated: state.isAuthenticated,
+          user: state.user,
+          token: state.token,
+        });
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
+      .addCase(initializeAuth.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        console.log('initializeAuth.fulfilled: Updated auth state:', {
+          isAuthenticated: state.isAuthenticated,
+          user: state.user,
+          token: state.token,
+        });
+      })
+      .addCase(initializeAuth.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.error = action.payload;
+      })
       .addCase(updateUser.pending, (state) => {
         state.isLoading = true;
-        state.error = false;
+        state.error = null;
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
-        state.error = false;
+        state.error = null;
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;

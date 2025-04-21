@@ -41,6 +41,8 @@ const ProductCard = ({
     debounce((item) => {
       console.log('Dispatching addItemToCart with:', item);
       dispatch(addItemToCart(item));
+      alert(`Product ${product.name} added successfully`);
+
     }, 300),
     [dispatch]
   );
@@ -55,7 +57,6 @@ const ProductCard = ({
         quantity: 1,
       };
       debouncedAddToCart(item);
-      alert(`Product ${product.name} added successfully`);
     } else {
       navigate('/login');
     }

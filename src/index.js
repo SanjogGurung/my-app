@@ -20,39 +20,61 @@ import UsersList from './pages/staff/components/UsersList';
 import { Products } from './pages/staff/Dashboard';
 import EditProductFormPage from './pages/staff/EditProductFormPage';
 import Wallpapers from './pages/staff/components/Wallpapers';
+import ProtectedRoute from './ProtectedRoute';
+import { setStore } from './axiosConfig'; // Import setStore
+import Root from './Root.js';
+
+setStore(store);
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <App />,
+    element: <Root />, // Initializes auth
     children: [
-      {path: '', element: <HomePage />},
-      {path: 'home', element: <HomePage />},
-      {path: '/profile', element: <UserProfile />},
-      {path:'/product/description/:id', element: <ProductDescriptionPage />},
-      {path:'/cart', element: <CartPage />}
+      {
+        path: '/',
+        element: <App />,
+        children: [
+          { path: '', element: <HomePage /> },
+          { path: 'home', element: <HomePage /> },
+          { path: 'product/description/:id', element: <ProductDescriptionPage /> },
+
+          {
+            element: <ProtectedRoute />,
+            children: [
+              { path: 'profile', element: <UserProfile /> },
+              { path: 'cart', element: <CartPage /> },
+            ],
+          },
+        ],
+      },
+      {
+        path: '/staff',
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: '',
+            element: <Dashboard />,
+            children: [
+              { path: '', element: <Overview /> },
+              { path: 'overview', element: <Overview /> },
+              { path: 'users', element: <UsersList /> },
+              { path: 'addProduct', element: <AddProductForm /> },
+              { path: 'products', element: <Products /> },
+              { path: 'products/edit/:id', element: <EditProductFormPage /> },
+              { path: 'addWallpaper', element: <Wallpapers /> },
+            ],
+          },
+        ],
+      },
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/register',
+        element: <RegistrationForm />,
+      },
     ],
-  },
-  {
-    path: '/staff/*',
-    element: <Dashboard />,
-    children: [
-      {path: '', element: <Overview />},
-      {path: 'overview', element: <Overview />},
-      {path: 'users', element: <UsersList />},
-      {path: 'addProduct', element: <AddProductForm />},
-      {path: 'products', element: <Products />},
-      {path: 'products/edit/:id', element: <EditProductFormPage />},
-      {path: 'addWallpaper', element: <Wallpapers />}
-    ]
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/register',
-    element: <RegistrationForm />,
   },
 ]);
 
