@@ -1,58 +1,103 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faSave, faUpload, faSpinner, faUser, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { updateUser } from '../redux/slices/authSlice';
-import { fetchOrders } from '../redux/slices/orderSlice';
+import { faEdit, faSave, faUpload, faSpinner, faUser, faChevronDown, faChevronUp, faSignOutAlt, faCheck, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { updateUser, logout } from '../redux/slices/authSlice';
+import { fetchOrders, updateTrackingStatus } from '../redux/slices/orderSlice';
 import Alert from '../components/Alert';
 import '../styles/UserProfile.css';
+import axios from '../axiosConfig';
 
 export default function UserProfile() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user, token, isAuthenticated, isLoading: authLoading, error: authError } = useSelector((state) => state.auth);
-  const { orders, isLoading: ordersLoading, error: ordersError } = useSelector((state) => state.orders);
+  const { orders: rawOrders, isLoading: ordersLoading, error: ordersError } = useSelector((state) => state.order);
   const [isEditing, setIsEditing] = useState(false);
   const [profileImgSrc, setProfileImgSrc] = useState(null);
   const [LoadingImg, setLoadingImg] = useState(true);
   const [imageError, setImageError] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+  const [deliveredOrders, setDeliveredOrders] = useState({});
+
+  // Sort orders by latest date
+  const orders = [...rawOrders].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+  // Load delivered state from local storage on mount (for backward compatibility)
+  useEffect(() => {
+    const storedDeliveredOrders = {};
+    rawOrders.forEach((order) => {
+      const isDelivered = localStorage.getItem(`delivered_order_${order.id}`);
+      if (isDelivered === 'true') {
+        storedDeliveredOrders[order.id] = true;
+      }
+    });
+    setDeliveredOrders(storedDeliveredOrders);
+  }, [rawOrders]);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (user && user.id && token) {
+        try {
+          const response = await axios.get(`http://localhost:8082/user/${user.id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const fetchedUser = response.data;
+          if (fetchedUser.role) {
+            fetchedUser.role = fetchedUser.role.replace('ROLE_', '').toLowerCase();
+          }
+          setUserDetails(fetchedUser);
+          console.log('Fetched user details:', fetchedUser);
+        } catch (error) {
+          console.error('Error fetching user details:', error.response?.status, error.response?.data);
+          setFetchError(error.response?.data?.message || 'Failed to fetch user details');
+        }
+      }
+    };
+    fetchUserDetails();
+  }, [user?.id, token]);
 
   useEffect(() => {
     const fetchProfileImage = async () => {
-        if (user && user.id && token) {
-            setLoadingImg(true);
-            setImageError(null);
-            try {
-                const response = await fetch(`http://localhost:8082/user/${user.id}/image`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+      if (user && user.id && token) {
+        setLoadingImg(true);
+        setImageError(null);
+        try {
+          const response = await fetch(`http://localhost:8082/user/${user.id}/image`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
 
-                if (response.ok) {
-                    const blob = await response.blob();
-                    setProfileImgSrc(URL.createObjectURL(blob));
-                } else if (response.status === 401 || response.status === 403) {
-                    setImageError("Authentication failed to load image.");
-                    // Optionally handle token expiration or redirect to login
-                } else {
-                    setImageError(`Failed to load image: ${response.statusText}`);
-                }
-            } catch (error) {
-                console.error("Error fetching profile image:", error);
-                setImageError("Error fetching image.");
-            } finally {
-                setLoadingImg(false);
-            }
+          if (response.ok) {
+            const blob = await response.blob();
+            setProfileImgSrc(URL.createObjectURL(blob));
+          } else if (response.status === 401 || response.status === 403) {
+            setImageError("Authentication failed to load image.");
+          } else {
+            setImageError(`Failed to load image: ${response.statusText}`);
+          }
+        } catch (error) {
+          console.error("Error fetching profile image:", error);
+          setImageError("Error fetching image.");
+        } finally {
+          setLoadingImg(false);
         }
-  }; 
-  fetchProfileImage(); 
-}, [user?.id, token, user?.profileImg]);
+      }
+    };
+    fetchProfileImage();
+  }, [user?.id, token, userDetails?.profileImg]);
 
   const [formData, setFormData] = useState({
     id: '',
     firstName: '',
     lastName: '',
     email: '',
+    phoneNumber: '',
     profileImg: '',
   });
   const [photo, setPhoto] = useState(null);
@@ -60,28 +105,36 @@ export default function UserProfile() {
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   useEffect(() => {
-    if (user) {
+    if (userDetails) {
       setFormData({
-        id: user.id || '',
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        profileImg: user.profileImg || 'null',
+        id: userDetails.id || '',
+        firstName: userDetails.firstName || '',
+        lastName: userDetails.lastName || '',
+        email: userDetails.email || '',
+        phoneNumber: userDetails.phoneNumber || '',
+        profileImg: userDetails.profileImg || 'null',
       });
     }
-  }, [user]);
+  }, [userDetails]);
 
   useEffect(() => {
     if (isAuthenticated && token) {
-      dispatch(fetchOrders());
+      console.log('Fetching orders...');
+      dispatch(fetchOrders()).then((result) => {
+        if (fetchOrders.fulfilled.match(result)) {
+          console.log('Orders fetched successfully:', result.payload);
+        } else {
+          console.error('Failed to fetch orders:', result.payload);
+        }
+      });
     }
   }, [dispatch, isAuthenticated, token]);
 
   useEffect(() => {
-    if (authError || ordersError) {
+    if (authError || ordersError || fetchError) {
       setIsAlertOpen(true);
     }
-  }, [authError, ordersError]);
+  }, [authError, ordersError, fetchError]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -100,7 +153,7 @@ export default function UserProfile() {
     }
     try {
       console.log("Working !!!");
-      await dispatch(updateUser({ userData: formData, photo })).unwrap();  
+      await dispatch(updateUser({ userData: formData, photo })).unwrap();
       setIsEditing(false);
       setPhoto(null);
     } catch (err) {
@@ -108,8 +161,28 @@ export default function UserProfile() {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
   const toggleOrderDetails = (orderId) => {
+    console.log('Toggling order details for orderId:', orderId);
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
+  const handleMarkDelivered = (orderId) => {
+    dispatch(updateTrackingStatus({
+      orderId,
+      status: 'Delivered',
+      description: 'Marked as delivered by the user',
+    })).then(() => {
+      setDeliveredOrders((prev) => ({
+        ...prev,
+        [orderId]: true,
+      }));
+      localStorage.setItem(`delivered_order_${orderId}`, 'true');
+    });
   };
 
   const closeAlert = () => {
@@ -155,6 +228,7 @@ export default function UserProfile() {
               onChange={handleInputChange}
               disabled={!isEditing}
               className="form-input"
+              required
             />
           </div>
           <div className="form-group">
@@ -167,6 +241,7 @@ export default function UserProfile() {
               onChange={handleInputChange}
               disabled={!isEditing}
               className="form-input"
+              required
             />
           </div>
           <div className="form-group">
@@ -181,10 +256,29 @@ export default function UserProfile() {
               className="form-input"
             />
           </div>
-          <button type="submit" className="form-button">
-            <FontAwesomeIcon icon={isEditing ? faSave : faEdit} />
-            {isEditing ? ' Save' : ' Edit'}
-          </button>
+          <div className="form-group">
+            <label htmlFor="phoneNumber">Phone Number</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className="form-input"
+              required
+            />
+          </div>
+          <div className="form-buttons">
+            <button type="submit" className="form-button">
+              <FontAwesomeIcon icon={isEditing ? faSave : faEdit} />
+              {isEditing ? ' Save' : ' Edit'}
+            </button>
+            <button type="button" className="form-button logout-button" onClick={handleLogout}>
+              <FontAwesomeIcon icon={faSignOutAlt} />
+              Logout
+            </button>
+          </div>
         </form>
       </div>
       <h2 className="orders-title">Order History</h2>
@@ -192,43 +286,90 @@ export default function UserProfile() {
         <div className="loading">
           <FontAwesomeIcon icon={faSpinner} spin size="2x" />
         </div>
-      ) : orders.length > 0 ? (
+      ) : orders && orders.length > 0 ? (
         <div className="orders-table">
           <div className="table-header">
             <span>Order ID</span>
             <span>Date</span>
             <span>Total</span>
             <span>Status</span>
+            <span>Shipping Address</span>
+            <span>Delivered</span>
             <span></span>
           </div>
           {orders.map((order) => (
-            <div key={order.orderId} className="table-row-wrapper">
-              <div className="table-row" onClick={() => toggleOrderDetails(order.orderId)}>
-                <span>{order.orderId}</span>
-                <span>{new Date(order.date).toLocaleDateString()}</span>
-                <span>${order.total.toFixed(2)}</span>
-                <span>{order.status}</span>
+            <div key={order.id} className="table-row-wrapper">
+              <div className="table-row" onClick={() => toggleOrderDetails(order.id)}>
+                <span>{order.id}</span>
+                <span>{new Date(order.orderDate).toLocaleDateString()}</span>
+                <span>${order.totalAmount.toFixed(2)}</span>
+                <span>{order.status || 'Unknown'}</span>
+                <span>{order.shippingAddress || 'N/A'}</span>
+                <span>
+                  {deliveredOrders[order.id] || order.status === 'Delivered' ? (
+                    <span className="delivered-status">
+                      <FontAwesomeIcon icon={faCheck} /> Delivered
+                    </span>
+                  ) : (
+                    <button
+                      className="delivered-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkDelivered(order.id);
+                      }}
+                    >
+                      Mark as Delivered
+                    </button>
+                  )}
+                </span>
                 <span>
                   <FontAwesomeIcon
-                    icon={expandedOrder === order.orderId ? faChevronUp : faChevronDown}
+                    icon={expandedOrder === order.id ? faChevronUp : faChevronDown}
                     className="toggle-icon"
                   />
                 </span>
               </div>
-              {expandedOrder === order.orderId && order.items && order.items.length > 0 && (
-                <div className="order-items">
-                  <div className="items-header">
-                    <span>Product</span>
-                    <span>Quantity</span>
-                    <span>Price</span>
-                  </div>
-                  {order.items.map((item) => (
-                    <div key={item.productId} className="items-row">
-                      <span>{item.name}</span>
-                      <span>{item.quantity}</span>
-                      <span>${item.price.toFixed(2)}</span>
+              {expandedOrder === order.id && (
+                <div className="order-details">
+                  {order.items && order.items.length > 0 && (
+                    <div className="order-items">
+                      <div className="items-header">
+                        <span>Product</span>
+                        <span>Quantity</span>
+                        <span>Price</span>
+                      </div>
+                      {order.items.map((item) => (
+                        <div key={item.productId} className="items-row">
+                          <span>{item.productName}</span>
+                          <span>{item.quantity}</span>
+                          <span>${item.price != null ? item.price.toFixed(2) : '0.00'}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  {order.trackingHistory && order.trackingHistory.length > 0 && (
+                    <div className="tracking-history">
+                      <h3>Tracking History</h3>
+                      <div className="timeline">
+                        {order.trackingHistory.map((tracking, index) => (
+                          <div key={tracking.id || index} className="timeline-item">
+                            <div className="timeline-icon">
+                              <FontAwesomeIcon icon={faCircle} />
+                            </div>
+                            <div className="timeline-content">
+                              <p className="tracking-status">{tracking.status}</p>
+                              <p className="tracking-date">
+                                {new Date(tracking.updatedAt).toLocaleString()}
+                              </p>
+                              {tracking.description && (
+                                <p className="tracking-description">{tracking.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -132,9 +132,10 @@
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 0.5fr;
+  grid-template-columns: 0.5fr 1fr 0.5fr 0.5fr 1fr 0.8fr 0.5fr;
   padding: 15px;
   text-align: center;
+  align-items: center;
 }
 
 .table-header {
@@ -161,10 +162,14 @@
   color: #1a3c6d;
 }
 
-.order-items {
+.order-details {
   background-color: #f7f9fc;
   padding: 10px;
   border-bottom: 1px solid #ddd;
+}
+
+.order-items {
+  margin-bottom: 20px;
 }
 
 .items-header,
@@ -189,6 +194,69 @@
   border-bottom: none;
 }
 
+.tracking-history {
+  margin-top: 20px;
+}
+
+.tracking-history h3 {
+  font-size: 1.2em;
+  color: #1a3c6d;
+  margin-bottom: 10px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: -20px;
+  width: 2px;
+  background-color: #1a3c6d;
+}
+
+.timeline-item:last-child::before {
+  display: none;
+}
+
+.timeline-icon {
+  position: absolute;
+  left: 5px;
+  top: 0;
+  color: #1a3c6d;
+}
+
+.timeline-content {
+  margin-left: 30px;
+}
+
+.tracking-status {
+  font-weight: bold;
+  color: #1a3c6d;
+  margin: 0;
+}
+
+.tracking-date {
+  color: #4a5568;
+  font-size: 0.9em;
+  margin: 2px 0;
+}
+
+.tracking-description {
+  color: #4a5568;
+  font-size: 0.9em;
+  margin: 2px 0;
+}
+
 .loading {
   text-align: center;
   margin: 20px 0;
@@ -200,4 +268,40 @@
   color: #4a5568;
   font-size: 1.2em;
   margin: 20px 0;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.logout-button {
+  background-color: #ff4d4f;
+}
+
+.logout-button:hover {
+  background-color: #d9363e;
+}
+
+.delivered-button {
+  padding: 5px 10px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.delivered-button:hover {
+  background-color: #218838;
+}
+
+.delivered-status {
+  color: #28a745;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }

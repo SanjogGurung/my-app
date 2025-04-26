@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import { FaSearch, FaShoppingCart, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,12 +13,13 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isAuthenticated); 
   const cartNumbers = useSelector((state) => state.cart.totalQuantity);
+  const location = useLocation();
 
   useEffect(() => {
     if (isLoggedIn) {
       dispatch(fetchCart());
     }
-  }, [dispatch, isLoggedIn]);
+  }, [dispatch, isLoggedIn, location.pathname]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -88,7 +89,7 @@ export default function Navbar() {
         </ul>
 
         <div className="navbar-auth">
-          <Link to="/cart" className="cart-btn">
+          <Link to="/cart" className="cart-btn" onClick={() => isLoggedIn && dispatch(fetchCart())}>
             <div className='cart-number'>{cartNumbers}</div>
             <FaShoppingCart />
           </Link>

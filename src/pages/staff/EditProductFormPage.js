@@ -170,7 +170,7 @@ const EditProductFormPage = () => {
         discountedPrice : formData.isOnSale && formData.discountPercentage > 0 ? parseFloat((parseFloat(formData.price) || 0.0) * (1 - (parseInt(formData.discountPercentage, 10) || 0) / 100)).toFixed(2) : null,
         description: formData.description,
         isOnSale: formData.isOnSale,
-        isAvailable: formData.isAvailable, // New field
+        isAvailable: formData.isAvailable, // New field 
         quantity: parseInt(formData.quantity) || 0,
         imageName1: formData.imageName1,
         imageName2: formData.imageName2,

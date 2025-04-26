@@ -1,179 +1,161 @@
-.product-card-link-wrapper {
+.pc-product-card-link-wrapper {
   text-decoration: none;
   color: inherit;
-  display: block;
-  height: 100%;
   cursor: pointer;
 }
 
-.product-card-content {
+/* Different heights for user and staff cards */
+.pc-user-card {
+  height: 300px; /* Smaller height for users */
+}
+
+.pc-staff-card {
+  height: 350px; /* Larger height for staff to accommodate buttons */
+}
+
+.pc-product-card-content {
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 12px;
-  width: 220px;
-  height: 380px; /* Fixed height for the entire card */
-  position: relative;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-  background-color: #fff;
-  transition: transform 0.15s ease-in-out;
   overflow: hidden;
+  background-color: white;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative; /* For positioning the sale badge */
 }
 
-.product-card-content:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-}
-
-.sale-badge {
+.pc-sale-badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background-color: #ff4444;
+  top: 10px;
+  right: 10px;
+  background-color: #dc3545;
   color: white;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 0.75em;
-  z-index: 1;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  z-index: 1; /* Ensure it’s above the image */
 }
 
-.product-image {
+.pc-product-image {
   width: 100%;
-  height: 180px; /* Fixed height for image container */
+  height: 150px;
   overflow: hidden;
-  border-radius: 4px;
-  margin-bottom: 8px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
 }
 
-.product-image img {
-  display: block;
+.pc-product-image img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-.product-details {
-  text-align: left;
-  padding: 8px 0;
+.pc-product-details {
+  padding: 10px;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  flex-grow: 1;
 }
 
-.product-name {
+.pc-product-name {
   font-size: 1.1em;
-  margin: 0 0 5px;
-  white-space: nowrap;
+  margin: 0 0 10px;
+  height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-.price-container {
-  margin-bottom: 5px;
-}
-
-.product-price {
-  margin: 0;
-  font-size: 1em;
-  color: #333;
+.pc-price-container {
+  height: 40px;
   display: flex;
   align-items: center;
 }
 
-.original-price {
-  color: #888;
-  text-decoration: line-through;
-  font-size: 0.95em;
-  margin-right: 5px;
-  font-weight: normal;
-}
-
-.discounted-price {
-  color: #ff4444;
+.pc-product-price {
+  font-size: 1em;
   font-weight: bold;
-  font-size: 1.15em;
-  margin-left: 5px;
-}
-
-.discount-info {
-  color: #28a745;
-  font-size: 0.8em;
-  margin-bottom: 5px;
-}
-
-.add-to-cart-btn,
-.delete-btn {
-  padding: 6px 12px;
-  border: 1px solid #007bff;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  width: 100%;
-  margin-top: auto;
-  font-size: 0.9em;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.add-to-cart-btn {
-  background-color: white;
-  color: #007bff;
-}
-
-.add-to-cart-btn:hover {
-  background-color: #007bff;
-  color: white;
-}
-
-.staff-actions {
+  margin: 0;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: auto;
+  align-items: center;
+  white-space: nowrap; /* Prevent wrapping of NPR and price */
 }
 
-.edit-btn {
-  background-color: #f8f9fa;
-  color: #007bff;
-  border: 1px solid #007bff;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+.pc-product-price.pc-on-sale {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pc-original-price {
+  text-decoration: line-through;
+  color: #666;
   font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.pc-discounted-price {
+  color: #dc3545;
   font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
+  white-space: nowrap;
+}
+
+.pc-add-to-cart-btn {
+  width: 100%;
+  padding: 8px;
+  background-color: white;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  color: #007bff;
+  font-size: 0.9em;
+  cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
 
-.edit-btn:hover {
+.pc-add-to-cart-btn:hover {
   background-color: #007bff;
   color: white;
 }
 
-.delete-btn {
-  background-color: white;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-  font-weight: bold;
-  transition: background-color 0.2s, color 0.2s;
+.pc-staff-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-.delete-btn:hover {
+.pc-edit-btn,
+.pc-delete-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pc-edit-btn {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+}
+
+.pc-edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.pc-delete-btn {
   background-color: #dc3545;
   color: white;
+  border: none;
 }
 
-.product-price.on-sale {
-  flex-direction: row;
-  align-items: center;
+.pc-delete-btn:hover {
+  background-color: #b02a37;
 }

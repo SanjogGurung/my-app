@@ -23,6 +23,14 @@ const ProductCard = ({
       ? product.price * (1 - product.discountPercentage / 100)
       : product.price;
 
+  // Debugging to check if the badge should be displayed
+  console.log(`Product: ${product.name}`, {
+    isOnSale: product.isOnSale,
+    discountPercentage: product.discountPercentage,
+    originalPrice: product.price,
+    discountedPrice: discountedPrice
+  });
+
   const handleDelete = async (e) => {
     e.preventDefault();
     if (window.confirm(`Are you sure you want to delete ${id}?`)) {
@@ -40,20 +48,27 @@ const ProductCard = ({
   const debouncedAddToCart = useCallback(
     debounce((item) => {
       console.log('Dispatching addItemToCart with:', item);
-      dispatch(addItemToCart(item));
-      alert(`Product ${product.name} added successfully`);
-
+      dispatch(addItemToCart(item))
+        .unwrap()
+        .then((fulfilledValue) => {
+          console.log('addItemToCart successful:', fulfilledValue);
+          alert(`Product ${product.name} added successfully`);
+        })
+        .catch((rejectedValue) => {
+          console.error('addItemToCart failed:', rejectedValue);
+          alert(`Failed to add product ${product.name} to cart. Please try again.`);
+        });
     }, 300),
-    [dispatch]
+    [dispatch, product.name]
   );
 
   const handleAddToCart = (e) => {
-    e.stopPropagation(); // Still a good practice on the button itself
+    e.stopPropagation();
     if (isAuthenticated) {
       const item = {
         productId: product.id,
         productName: product.name,
-        price: product.isOnSale && product.discountPercentage ? product.discountedPrice : product.price,
+        price: product.isOnSale && product.discountPercentage ? discountedPrice : product.price,
         quantity: 1,
       };
       debouncedAddToCart(item);
@@ -63,51 +78,49 @@ const ProductCard = ({
   };
 
   const handleCardClick = (event) => {
-    // Check if the clicked element has the class 'add-to-cart-btn' or 'delete-btn'
-    if (!event.target.classList.contains('add-to-cart-btn') &&
-        !event.target.classList.contains('delete-btn') &&
-        !event.target.closest('.staff-actions')) { // Prevent navigation when clicking staff actions
+    if (!event.target.classList.contains('pc-add-to-cart-btn') &&
+        !event.target.classList.contains('pc-delete-btn') &&
+        !event.target.closest('.pc-staff-actions')) {
       navigate(`/product/description/${id}`);
     }
   };
 
   const cardContent = (
-    <div className="product-card-content">
-      {product.isOnSale && <div className="sale-badge">Sale</div>}
-      <div className="product-image">
+    <div className="pc-product-card-content">
+      {product.isOnSale && product.discountPercentage > 0 && (
+        <div className="pc-sale-badge">{Math.round(product.discountPercentage)}% Off</div>
+      )}
+      <div className="pc-product-image">
         <img src={`http://localhost:8082/product/${id}/image/1`} alt={product.name} />
       </div>
-      <div className="product-details">
-        <h3 className="product-name">{product.name}</h3>
-        <div className="price-container">
+      <div className="pc-product-details">
+        <h3 className="pc-product-name">{product.name}</h3>
+        <div className="pc-price-container">
           {product.isOnSale && product.discountPercentage > 0 ? (
-            <p className="product-price on-sale">
-              <span className="original-price">${product.price.toFixed(2)}</span>
-              <span className="discounted-price">${discountedPrice.toFixed(2)}</span>
+            <p className="pc-product-price pc-on-sale">
+              <span className="pc-original-price">NPR {product.price.toFixed(2)}</span>
+              <span className="pc-discounted-price">NPR {discountedPrice.toFixed(2)}</span>
             </p>
           ) : (
-            <p className="product-price">${product.price.toFixed(2)}</p>
+            <p className="pc-product-price">NPR {product.price.toFixed(2)}</p>
           )}
         </div>
-        {product.isOnSale && product.discountPercentage > 0 && (
-          <p className="discount-info">Save {product.discountPercentage}%</p>
-        )}
         {isStaffPanel ? (
-          <div className="staff-actions">
+          <div className="pc-staff-actions">
             <Link
               to={`/staff/products/edit/${product.id}`}
               state={{ product }}
-              className="edit-btn"
+              className="pc-edit-btn"
             >
               Edit
             </Link>
-            <button className="delete-btn" onClick={handleDelete}>
+            <button className="pc-delete-btn" onClick={handleDelete}>
               Delete
             </button>
           </div>
         ) : (
           <button
-            className="add-to-cart-btn"
+            className="pc-add-to-cart-btn"
             onClick={handleAddToCart}
           >
             Add to Cart
@@ -118,7 +131,7 @@ const ProductCard = ({
   );
 
   return (
-    <div className="product-card-link-wrapper" onClick={handleCardClick}>
+    <div className={`pc-product-card-link-wrapper ${isStaffPanel ? 'pc-staff-card' : 'pc-user-card'}`} onClick={handleCardClick}>
       {cardContent}
     </div>
   );
@@ -138,4 +151,4 @@ ProductCard.propTypes = {
   id: PropTypes.number.isRequired,
 };
 
-export default ProductCard;
+export default ProductCard; 

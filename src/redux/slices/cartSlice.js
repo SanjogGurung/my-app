@@ -1,3 +1,4 @@
+// src/redux/slices/cartSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -9,13 +10,12 @@ const initialState = {
   error: null,
 };
 
-// Thunk to fetch cart
 export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, { rejectWithValue }) => {
   try {
     const response = await axios.get('http://localhost:8082/cart', {
       headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
     });
-    const items = response.data; // Expecting array of CartItem
+    const items = response.data;
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     console.log('Fetched cart:', { items, totalQuantity, totalPrice });
@@ -26,7 +26,6 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, { rejectWi
   }
 });
 
-// Thunk to add item to cart
 export const addItemToCart = createAsyncThunk('cart/addItemToCart', async (item, { dispatch, rejectWithValue }) => {
   try {
     const payload = {
@@ -40,79 +39,71 @@ export const addItemToCart = createAsyncThunk('cart/addItemToCart', async (item,
       headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
     });
     await dispatch(fetchCart());
-    return {
-      id: response.data.id,
-      price: response.data.price,
-      quantity: response.data.quantity,
-      productName: response.data.productName,
-    };
+    return response.data;
   } catch (err) {
     console.error('Add Item Error:', err);
     return rejectWithValue(err.response?.data?.message || 'Failed to add item to cart');
   }
 });
 
-// Thunk to increment item quantity
 export const incrementItemQuantity = createAsyncThunk(
   'cart/incrementItemQuantity',
-  async (id, { getState, dispatch, rejectWithValue }) => {
+  async ({ id, quantity }, { dispatch, rejectWithValue }) => {
     try {
-      const { cart } = getState();
-      const item = cart.items.find((item) => item.id === id);
-      if (!item) {
-        throw new Error('Item not found in cart');
+      if (!id || quantity == null || quantity < 0) {
+        throw new Error('Invalid id or quantity');
       }
-      const newQuantity = item.quantity + 1;
-      await axios.put(
+      console.log(`Incrementing item ${id} to quantity ${quantity}`);
+      const response = await axios.put(
         `http://localhost:8082/cart/item/${id}/quantity`,
-        { quantity: newQuantity },
+        { quantity }, // Send quantity in request body
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         }
       );
-      // await dispatch(fetchCart());
-      return { id, price: item.price, quantity: 1, productName: item.productName };
+      console.log('Increment response:', response.data);
+      await dispatch(fetchCart());
+      return response.data;
     } catch (err) {
-      console.error('Increment Item Error:', err);
-      return rejectWithValue(err.response?.data?.message || 'Failed to increment item quantity');
+      console.error('Increment Item Error:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
+      return rejectWithValue(err.response?.data?.message || 'Failed to increment item quantity. Item may be out of stock.');
     }
   }
 );
 
-// Thunk to remove item (reduce quantity by 1)
 export const removeItemFromCart = createAsyncThunk(
   'cart/removeItemFromCart',
-  async (id, { getState, dispatch, rejectWithValue }) => {
+  async ({ id, quantity }, { dispatch, rejectWithValue }) => {
     try {
-      const { cart } = getState();
-      const item = cart.items.find((item) => item.id === id);
-      if (!item) {
-        throw new Error('Item not found in cart');
+      if (!id || quantity == null || quantity < 0) {
+        throw new Error('Invalid id or quantity');
       }
-      const newQuantity = item.quantity - 1;
-      if (newQuantity <= 0) {
-        await axios.delete(`http://localhost:8082/cart/item/${id}`, {
+      console.log(`Decrementing item ${id} to quantity ${quantity}`);
+      const response = await axios.put(
+        `http://localhost:8082/cart/item/${id}/quantity`,
+        { quantity }, // Send quantity in request body
+        {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-        });
-      } else {
-        await axios.put(
-          `http://localhost:8082/cart/item/${id}/quantity`,
-          { quantity: newQuantity },
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-          }
-        );
-      }
-      // await dispatch(fetchCart());
-      return id;
+        }
+      );
+      console.log('Decrement response:', response.data);
+      await dispatch(fetchCart());
+      return response.data;
     } catch (err) {
-      console.error('Remove Item Error:', err);
+      console.error('Remove Item Error:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
       return rejectWithValue(err.response?.data?.message || 'Failed to remove item');
     }
   }
 );
 
-// Thunk to delete item (remove entirely)
 export const deleteItemFromCart = createAsyncThunk(
   'cart/deleteItemFromCart',
   async (id, { dispatch, rejectWithValue }) => {
@@ -129,7 +120,6 @@ export const deleteItemFromCart = createAsyncThunk(
   }
 );
 
-// Thunk to clear cart
 export const clearCartItems = createAsyncThunk('cart/clearCartItems', async (_, { dispatch, rejectWithValue }) => {
   try {
     await axios.delete('http://localhost:8082/cart/clear', {
@@ -140,20 +130,6 @@ export const clearCartItems = createAsyncThunk('cart/clearCartItems', async (_, 
   } catch (err) {
     console.error('Clear Cart Error:', err);
     return rejectWithValue(err.response?.data?.message || 'Failed to clear cart');
-  }
-});
-
-// Thunk to place order
-export const placeOrder = createAsyncThunk('cart/placeOrder', async (_, { dispatch, rejectWithValue }) => {
-  try {
-    const response = await axios.post('http://localhost:8082/order/create', {}, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-    });
-    await dispatch(fetchCart());
-    return response.data;
-  } catch (err) {
-    console.error('Create Order Error:', err);
-    return rejectWithValue(err.response?.data?.message || 'Failed to create order');
   }
 });
 
@@ -169,9 +145,11 @@ const cartSlice = createSlice({
       state.error = null;
       console.log('Cleared cart state:', JSON.stringify(state, null, 2));
     },
+    clearError(state) {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
-    // fetchCart
     builder
       .addCase(fetchCart.pending, (state) => {
         state.isLoading = true;
@@ -189,52 +167,19 @@ const cartSlice = createSlice({
       .addCase(fetchCart.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
-
-    // addItemToCart
-    builder
+      })
       .addCase(addItemToCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(addItemToCart.fulfilled, (state, action) => {
+      .addCase(addItemToCart.fulfilled, (state) => {
         state.isLoading = false;
         state.error = null;
-        const newItem = action.payload;
-        console.log('addItemToCart fulfilled:', newItem);
-        if (!newItem.id || typeof newItem.price !== 'number' || isNaN(newItem.price)) {
-          console.error('Invalid item:', newItem);
-          state.error = 'Invalid item received';
-          state.isLoading = false;
-          return;
-        }
-
-        const existingItem = state.items.find((item) => item.id === newItem.id);
-
-        if (existingItem) {
-          existingItem.quantity += newItem.quantity || 1;
-          existingItem.totalPrice += newItem.price * (newItem.quantity || 1);
-        } else {
-          state.items.push({
-            ...newItem,
-            quantity: newItem.quantity || 1,
-            totalPrice: newItem.price * (newItem.quantity || 1),
-          });
-        }
-
-        state.totalQuantity += newItem.quantity || 1;
-        state.totalPrice += newItem.price * (newItem.quantity || 1);
-        state.isLoading = false;
-        state.error = null;
-        console.log('Updated cart state:', JSON.stringify(state, null, 2));
       })
       .addCase(addItemToCart.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
-
-    // incrementItemQuantity
-    builder
+      })
       .addCase(incrementItemQuantity.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -242,41 +187,14 @@ const cartSlice = createSlice({
       .addCase(incrementItemQuantity.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        const newItem = action.payload;
-        console.log('incrementItemQuantity fulfilled:', newItem);
-        if (!newItem.id || typeof newItem.price !== 'number' || isNaN(newItem.price)) {
-          console.error('Invalid item:', newItem);
-          state.error = 'Invalid item received';
-          state.isLoading = false;
-          return;
+        if (action.payload === null) {
+          state.items = state.items.filter(item => item.id !== action.meta.arg.id);
         }
-
-        const existingItem = state.items.find((item) => item.id === newItem.id);
-
-        if (existingItem) {
-          existingItem.quantity += newItem.quantity || 1;
-          existingItem.totalPrice += newItem.price * (newItem.quantity || 1);
-        } else {
-          state.items.push({
-            ...newItem,
-            quantity: newItem.quantity || 1,
-            totalPrice: newItem.price * (newItem.quantity || 1),
-          });
-        }
-
-        state.totalQuantity += newItem.quantity || 1;
-        state.totalPrice += newItem.price * (newItem.quantity || 1);
-        state.isLoading = false;
-        state.error = null;
-        console.log('Updated cart state:', JSON.stringify(state, null, 2));
       })
       .addCase(incrementItemQuantity.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
-
-    // removeItemFromCart
-    builder
+      })
       .addCase(removeItemFromCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -284,100 +202,40 @@ const cartSlice = createSlice({
       .addCase(removeItemFromCart.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        const id = action.payload;
-        const existingItem = state.items.find((item) => item.id === id);
-        if (!existingItem) {
-          console.error('Item not found:', id);
-          state.isLoading = false;
-          return;
+        if (action.payload === null) {
+          state.items = state.items.filter(item => item.id !== action.meta.arg.id);
         }
-
-        if (existingItem.quantity === 1) {
-          state.items = state.items.filter((item) => item.id !== id);
-        } else {
-          existingItem.quantity--;
-          existingItem.totalPrice -= existingItem.price;
-        }
-
-        state.totalQuantity--;
-        state.totalPrice -= existingItem.price;
-        state.isLoading = false;
-        state.error = null;
-        console.log('Updated cart state:', JSON.stringify(state, null, 2));
       })
       .addCase(removeItemFromCart.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
-
-    // deleteItemFromCart
-    builder
+      })
       .addCase(deleteItemFromCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(deleteItemFromCart.fulfilled, (state, action) => {
+      .addCase(deleteItemFromCart.fulfilled, (state) => {
         state.isLoading = false;
         state.error = null;
-        const id = action.payload;
-        const existingItem = state.items.find((item) => item.id === id);
-        if (!existingItem) {
-          console.error('Item not found:', id);
-          state.isLoading = false;
-          return;
-        }
-
-        state.items = state.items.filter((item) => item.id !== id);
-        state.totalQuantity -= existingItem.quantity;
-        state.totalPrice -= existingItem.totalPrice;
-        state.isLoading = false;
-        state.error = null;
-        console.log('Updated cart state:', JSON.stringify(state, null, 2));
       })
       .addCase(deleteItemFromCart.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
-
-    // clearCartItems
-    builder
+      })
       .addCase(clearCartItems.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(clearCartItems.fulfilled, (state) => {
-        state.items = [];
-        state.totalQuantity = 0;
-        state.totalPrice = 0;
         state.isLoading = false;
         state.error = null;
-        console.log('Cleared cart state:', JSON.stringify(state, null, 2));
       })
       .addCase(clearCartItems.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload;
-      });
-
-    // placeOrder
-    builder
-      .addCase(placeOrder.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(placeOrder.fulfilled, (state) => {
-        state.items = [];
-        state.totalQuantity = 0;
-        state.totalPrice = 0;
-        state.isLoading = false;
-        state.error = null;
-        console.log('Order placed, cleared cart:', JSON.stringify(state, null, 2));
-      })
-      .addCase(placeOrder.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
   },
 });
 
-export const { clearCart } = cartSlice.actions;
+export const { clearCart, clearError } = cartSlice.actions;
 export default cartSlice.reducer;

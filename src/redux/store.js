@@ -11,7 +11,7 @@ const store = configureStore({
     products: productsReducer,
     wallpapers: wallpapersReducer,
     cart: cartReducer,
-    orders: orderReducer
+    order: orderReducer
   },
 });
   

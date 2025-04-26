@@ -23,6 +23,10 @@ import Wallpapers from './pages/staff/components/Wallpapers';
 import ProtectedRoute from './ProtectedRoute';
 import { setStore } from './axiosConfig'; // Import setStore
 import Root from './Root.js';
+import Checkout from './pages/Checkout.js';
+import CheckoutVerify from './pages/CheckoutVerify.js';
+import ProductsPage from './pages/ProductsPage.js';
+import VerificationPage from './pages/VerificationPage.js';
 
 setStore(store);
 
@@ -36,6 +40,7 @@ const router = createBrowserRouter([
         children: [
           { path: '', element: <HomePage /> },
           { path: 'home', element: <HomePage /> },
+          {path :'products', element: <ProductsPage /> },
           { path: 'product/description/:id', element: <ProductDescriptionPage /> },
 
           {
@@ -43,6 +48,10 @@ const router = createBrowserRouter([
             children: [
               { path: 'profile', element: <UserProfile /> },
               { path: 'cart', element: <CartPage /> },
+              { path: 'checkout', element: <Checkout />},
+              { path: 'verify/:pidx', element: <CheckoutVerify />},
+              { path: 'checkout/verify', element: <CheckoutVerify /> }, // Updated route
+
             ],
           },
         ],
@@ -74,6 +83,10 @@ const router = createBrowserRouter([
         path: '/register',
         element: <RegistrationForm />,
       },
+      {
+        path:'verify-email',
+        element: <VerificationPage />
+      }
     ],
   },
 ]);

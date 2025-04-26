@@ -69,7 +69,7 @@ export default function HomePageSlider() {
                 <img
                 src = {`http://localhost:8082/wallpaper/${wallpaper.id}/image`} 
                 alt={wallpaper.title}
-                style={{ width: '100%', height:'400px',margin: '10px', objectFit: 'cover' }} // Adjust styling as needed
+                style={{ width: '100%', height:'600px',margin: '10px', objectFit: 'fill' }} // Adjust styling as needed
                 />
             ) )}
         </Carousel>

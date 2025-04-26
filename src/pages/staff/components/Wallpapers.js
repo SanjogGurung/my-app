@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import "../../../styles/staff/Wallpapers.css";
+import { useSelector } from "react-redux";
 
 export default function Wallpapers() {
   const [images, setImages] = useState([]);
@@ -8,6 +9,7 @@ export default function Wallpapers() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [wallpapers, setWallpapers] = useState([]);
+  const {token} = useSelector((state) => state.auth);
 
   // Fetch wallpapers on component mount
   useEffect(() => {
@@ -35,7 +37,11 @@ export default function Wallpapers() {
     setLoading(true);
     setError(null);
     try {
-      await axios.delete(`http://localhost:8082/wallpaper/${id}`);
+      await axios.delete(`http://localhost:8082/wallpaper/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
       setWallpapers(wallpapers.filter((wallpaper) => wallpaper.id !== id));
       console.log("Deleted wallpaper:", id);
     } catch (err) {
@@ -77,7 +83,9 @@ export default function Wallpapers() {
     
     try {
       const response = await axios.post("http://localhost:8082/wallpaper/addWallpaper", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
       console.log("Saved wallpapers:", response.data);
       // Reset form
