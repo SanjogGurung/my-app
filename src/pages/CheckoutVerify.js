@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from '../axiosConfig';
-import { fetchOrders } from '../redux/slices/orderSlice';
+import { fetchOrders, verifyPayment, clearOrderError } from '../redux/slices/orderSlice';
 
 function CheckoutVerify() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const { isAuthenticated, token } = useSelector((state) => state.auth);
-    const [message, setMessage] = useState('Verifying payment...');
-    const hasVerified = useRef(false); // Prevent multiple verification calls
+    const { status: orderStatus, error: orderError } = useSelector((state) => state.order);
+    const [message, setMessage] = useState('Verifying your payment with Khalti...');
+    const hasVerified = useRef(false);
 
     useEffect(() => {
-        const verifyPayment = async () => {
+        const verifyPaymentAction = async () => {
             if (hasVerified.current) {
                 console.log('Verification already attempted, skipping...');
                 return;
@@ -22,7 +22,8 @@ function CheckoutVerify() {
             hasVerified.current = true;
 
             if (!isAuthenticated || !token) {
-                navigate('/login');
+                setMessage('Please log in to verify your payment.');
+                setTimeout(() => navigate('/login'), 2000);
                 return;
             }
 
@@ -32,46 +33,38 @@ function CheckoutVerify() {
             const transactionId = params.get('transaction_id');
 
             if (!pidx) {
-                setMessage('Invalid payment verification request.');
+                setMessage('Invalid payment verification request: Missing payment ID.');
+                setTimeout(() => navigate('/cart'), 3000);
                 return;
             }
 
             try {
-                console.log('Verifying payment with pidx:', pidx, 'status:', status, 'transaction_id:', transactionId);
-                const response = await axios.post(
-                    `http://localhost:8082/order/verify-payment`,
-                    {}, // Empty body, since parameters are sent as query params
-                    {
-                        params: { pidx, status, transaction_id: transactionId },
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                console.log('Payment verification response:', response.data);
-                if (response.data.status === 'success') {
+                const result = await dispatch(verifyPayment({ pidx, status, transactionId })).unwrap();
+                if (result.status === 'success') {
                     await dispatch(fetchOrders()).unwrap();
-                    setMessage('Payment successful! Redirecting to profile...');
-                    setTimeout(() => navigate('/profile'), 2000);
+                    setMessage('Payment successful! Your order has been placed. Redirecting to your profile...');
+                    setTimeout(() => navigate('/profile'), 3000);
                 } else {
-                    setMessage(response.data.error || 'Payment verification failed. Redirecting to cart...');
-                    setTimeout(() => navigate('/cart'), 2000);
+                    setMessage(result.error || 'Payment verification failed. Redirecting to cart...');
+                    setTimeout(() => navigate('/cart'), 3000);
                 }
             } catch (err) {
-                console.error('Payment verification failed:', err.response?.status, err.response?.data, err.message);
-                setMessage('Payment verification failed: ' + (err.response?.data?.error || err.message) + '. Redirecting to cart...');
-                setTimeout(() => navigate('/cart'), 2000);
+                const errorMessage = orderError || 'Payment verification failed with Khalti. Please try again or contact support.';
+                setMessage(errorMessage);
+                setTimeout(() => navigate('/cart'), 3000);
+                dispatch(clearOrderError());
             }
         };
 
-        verifyPayment();
-    }, [isAuthenticated, token, location, navigate, dispatch]);
+        verifyPaymentAction();
+    }, [isAuthenticated, token, location, navigate, dispatch, orderError]);
 
     return (
         <div className="checkout-page">
             <h1>Payment Verification</h1>
             <p>{message}</p>
+            {orderStatus === 'loading' && <p>Loading...</p>}
+            {orderError && <p className="error">{orderError}</p>}
         </div>
     );
 }

@@ -55,27 +55,42 @@ export default function Dashboard() {
 }
 
 // Existing components (unchanged)
-export function Overview({ data }) {
-  return (
-    <div className="overview-content">
-      <h2>Overview</h2>
-      {data ? (
-        <div>
-          <p>Overview Data:</p>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
-        </div>
-      ) : (
-        <p>Welcome to the Staff Dashboard! This is the Overview section.</p>
-      )}
-    </div>
-  );
-}
+// export function Overview({ data }) {
+//   return (
+//     <div className="overview-content">
+//       <h2>Overview</h2>
+//       {data ? (
+//         <div>
+//           <p>Overview Data:</p>
+//           <pre>{JSON.stringify(data, null, 2)}</pre>
+//         </div>
+//       ) : (
+//         <p>Welcome to the Staff Dashboard! This is the Overview section.</p>
+//       )}
+//     </div>
+//   );
+// }
 
 export function Products() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+  
   return (
     <div className="products-content">
       <h2>Products</h2>
-      <ProductList isStaffPanel = {true}/>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search products by name..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="search-input"
+        />
+      </div>
+      <ProductList isStaffPanel = {true} searchTerm={searchTerm} />
     </div>
   );
 }

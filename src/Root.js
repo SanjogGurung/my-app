@@ -5,18 +5,15 @@ import { Outlet } from 'react-router-dom';
 
 function Root() {
   const dispatch = useDispatch();
-  const { isLoading, isAuthenticated } = useSelector((state) => state.auth);
+  const { isInitialized, isLoading, isAuthenticated } = useSelector((state) => state.auth);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     console.log('Root: Dispatching initializeAuth');
-    dispatch(initializeAuth()).finally(() => {
-        console.log('Root: initializeAuth completed');
-      setIsInitializing(false);
-    });
+    dispatch(initializeAuth());
   }, [dispatch]);
 
-  if (isInitializing || isLoading) {
+  if (!isInitialized || isLoading) {
     console.log('Root: Waiting for auth initialization');
     return <div className="loading-spinner">Loading...</div>;
   }

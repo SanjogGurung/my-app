@@ -14,40 +14,40 @@
   overflow-x: hidden;
 }
 
-.navbar-logo a {
+.navbarLogo a {
   font-size: 26px;
   font-weight: bold;
   color: #000;
   text-decoration: none;
 }
 
-.navbar-toggle {
+.navbarToggle {
   display: none;
   font-size: 24px;
   cursor: pointer;
   color: #000;
 }
 
-.navbar-content {
+.navbarContent {
   display: flex;
   align-items: center;
-  gap: 20px; /* Reduced gap between logo and content */
+  gap: 20px;
   width: 80%;
   justify-content: space-between;
 }
 
-.search-container {
+.searchContainer {
   display: flex;
   position: relative;
 }
 
-.search-form {
+.searchForm {
   display: flex;
   flex-direction: row;
   position: relative;
 }
 
-.search-input {
+.searchInput {
   padding: 10px 40px 10px 15px;
   font-size: 18px;
   border: 1px solid #ddd;
@@ -57,11 +57,11 @@
   transition: border-color 0.3s ease;
 }
 
-.search-input:focus {
+.searchInput:focus {
   border-color: #007bff;
 }
 
-.search-button {
+.searchButton {
   border: 0;
   background-color: transparent;
   position: absolute;
@@ -73,41 +73,41 @@
   color: #555;
 }
 
-.search-button:hover {
+.searchButton:hover {
   color: #007bff;
 }
 
-.navbar-links {
+.navbarLinks {
   list-style: none;
   display: flex;
-  gap: 50px; /* Increased gap for list items */
+  gap: 50px;
   margin: 0;
   padding: 0;
 }
 
-.navbar-links li a {
+.navbarLinks li a {
   color: #000;
   text-decoration: none;
   font-size: 18px;
   transition: color 0.3s ease;
 }
 
-.navbar-links li a:hover {
+.navbarLinks li a:hover {
   color: #007bff;
 }
 
-.navbar-auth {
+.navbarAuth {
   display: flex;
   gap: 25px;
   align-items: center;
 }
 
-.cart-btn {
+.cartBtn {
   position: relative;
 }
 
-
-.cart-btn, .profile-btn {
+.cartBtn,
+.profileBtn {
   text-decoration: none;
   padding: 10px;
   border-radius: 5px;
@@ -119,61 +119,61 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.3s ease;
-
-  .cart-number {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: red;
-    color: white;
-    font-size: 0.7em;
-    position: absolute;
-    right: 0;
-    top: 0;
-    border-radius: 80px;
-    width: 20px;
-    height: 20px;
-
-  }
 }
 
-.cart-btn:hover, .profile-btn:hover {
+.cartBtn .cartNumber {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: red;
+  color: white;
+  font-size: 0.7em;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border-radius: 80px;
+  width: 20px;
+  height: 20px;
+}
+
+.cartBtn:hover,
+.profileBtn:hover {
   background-color: #d9d9d9;
 }
 
 @media (max-width: 1150px) {
-
   .navbar {
     gap: min(10px);
   }
-  .navbar-content {
+
+  .navbarContent {
     justify-content: center;
   }
 
-  .search-container {
+  .searchContainer {
     width: 80%;
-
-    .search-form {
-      width: 100%;
-    }
   }
-  .navbar-links {
+
+  .searchContainer .searchForm {
+    width: 100%;
+  }
+
+  .navbarLinks {
     display: none;
   }
 }
 
-/* Responsive Design */
 @media (max-width: 600px) {
   .navbar {
     padding: 10px 20px;
     flex-wrap: wrap;
   }
 
-  .navbar-toggle {
+  .navbarToggle {
     display: block;
   }
 
-  .navbar-content {
+  .navbarContent {
     display: none;
     flex-direction: column;
     width: 100%;
@@ -181,28 +181,29 @@
     padding-top: 20px;
   }
 
-  .navbar-content.open {
+  .navbarContent.open {
     display: flex;
   }
 
-  .search-input {
+  .searchInput {
     width: 100%;
     max-width: 400px;
   }
 
-  .navbar-links {
+  .navbarLinks {
     flex-direction: column;
-    gap: 25px; /* Adjusted for mobile */
+    gap: 25px;
     text-align: center;
   }
 
-  .navbar-auth {
+  .navbarAuth {
     flex-direction: column;
     gap: 15px;
     width: 100%;
   }
 
-  .cart-btn, .profile-btn {
+  .cartBtn,
+  .profileBtn {
     width: 100%;
     padding: 12px;
     font-size: 24px;

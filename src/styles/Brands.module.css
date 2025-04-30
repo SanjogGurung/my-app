@@ -1,0 +1,95 @@
+.brandsContainer {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .brandsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Match Brands.css */
+    gap: 20px; /* Match Brands.css */
+  }
+  
+  .brandCard {
+    padding: 15px; /* Match Brands.css */
+    border-radius: 8px; /* Match Brands.css */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Match Brands.css */
+    text-align: center; /* Match Brands.css */
+  }
+  
+  .brandImage {
+    width: 100%;
+    height: 100px; /* Keep small as previously adjusted */
+    object-fit: cover; /* Match Brands.css (changed from contain) */
+    border-radius: 4px; /* Match Brands.css */
+    margin-bottom: 10px; /* Match Brands.css */
+    cursor: pointer; /* Indicate clickable image */
+  }
+  
+  .brandName {
+    font-size: 1.1em; /* Match Brands.css */
+    margin: 5px 0; /* Match Brands.css */
+    color: #333;
+  }
+  
+  .deleteBtn {
+    background-color: #dc3545; /* Match Brands.css */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .deleteBtn:hover:not(:disabled) {
+    background-color: #b02a37; /* Match Brands.css */
+  }
+  
+  .deleteBtn:disabled {
+    background-color: #cccccc; /* Match Brands.css */
+    cursor: not-allowed;
+  }
+  
+  .loading {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    padding: 20px;
+  }
+  
+  .error {
+    text-align: center;
+    font-size: 16px;
+    color: #ff4d4f; /* Match Brands.css */
+    padding: 20px;
+  }
+  
+  @media (max-width: 600px) {
+    .brandsGrid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjusted for mobile */
+      gap: 15px;
+    }
+  
+    .brandImage {
+      height: 80px; /* Keep small as previously adjusted */
+    }
+  
+    .brandName {
+      font-size: 1em;
+    }
+  
+    .deleteBtn {
+      padding: 6px 12px;
+      font-size: 0.8em;
+    }
+  }

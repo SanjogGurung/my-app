@@ -13,7 +13,7 @@ import LoginPage from './pages/LoginPage';
 import RegistrationForm from './pages/RegistrationForm';
 import ProductDescriptionPage from './pages/ProductDescriptionPage';
 import CartPage from './pages/CartPage';
-import { Overview } from './pages/staff/Dashboard';
+// import { Overview } from './pages/staff/Dashboard';
 import { Users } from './pages/staff/Dashboard';
 import AddProductForm from './pages/staff/components/AddProductForm';
 import UsersList from './pages/staff/components/UsersList';
@@ -27,6 +27,11 @@ import Checkout from './pages/Checkout.js';
 import CheckoutVerify from './pages/CheckoutVerify.js';
 import ProductsPage from './pages/ProductsPage.js';
 import VerificationPage from './pages/VerificationPage.js';
+import Orders from './pages/staff/Orders.js';
+import Contact from './pages/Contact.js';
+import Overview from './pages/staff/Overview.js';
+import Brands from './pages/staff/Brands.js';
+import BrandList from './pages/BrandList.js';
 
 setStore(store);
 
@@ -42,6 +47,8 @@ const router = createBrowserRouter([
           { path: 'home', element: <HomePage /> },
           {path :'products', element: <ProductsPage /> },
           { path: 'product/description/:id', element: <ProductDescriptionPage /> },
+          { path:'contact', element: <Contact />},
+          { path:'brands', element: <BrandList />},
 
           {
             element: <ProtectedRoute />,
@@ -71,6 +78,8 @@ const router = createBrowserRouter([
               { path: 'products', element: <Products /> },
               { path: 'products/edit/:id', element: <EditProductFormPage /> },
               { path: 'addWallpaper', element: <Wallpapers /> },
+              { path: 'orders', element: <Orders />},
+              { path: 'brands', element: <Brands />},
             ],
           },
         ],

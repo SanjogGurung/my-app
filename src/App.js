@@ -16,6 +16,7 @@ import { useDispatch } from 'react-redux';
 import { fetchProducts } from './redux/slices/productsSlice.js';
 import UserProfile from './pages/UserProfile.js'; 
 import Navbar from './components/Navbar.js';
+import Footer from './components/Footer.js';
 
 
 
@@ -58,6 +59,7 @@ function App() {
     <div>
       <Navbar />
       <Outlet />
+      <Footer />
     </div>
   );
 }

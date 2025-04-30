@@ -34,7 +34,7 @@ const ProductsPage = () => {
   // Calculate min and max price from products
   useEffect(() => {
     if (products.length > 0) {
-      const prices = products.map((product) => product.price);
+      const prices = products.map((product) => product.price || 0);
       const min = Math.floor(Math.min(...prices)) || 0;
       const max = Math.ceil(Math.max(...prices)) || 134000;
       setMinPrice(min);
@@ -54,29 +54,25 @@ const ProductsPage = () => {
 
   // Handle search, filters, sorting, and reset pagination on filter change
   useEffect(() => {
-    let filtered = products;
+    let filtered = products || [];
 
-    console.log("Initial products count:", products.length);
+    console.log("Initial products count:", filtered.length);
 
-    // Search by name
+    // Search by name, description, or brand
     if (searchQuery) {
-      filtered = filtered.filter((product) =>
-        product.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      const params = new URLSearchParams(location.search);
-      params.set("q", searchQuery);
-      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+      filtered = filtered.filter((product) => {
+        const nameMatch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
+        const descriptionMatch = product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        const brandMatch = product.brand?.toLowerCase().includes(searchQuery.toLowerCase());
+        return nameMatch || descriptionMatch || brandMatch;
+      });
       console.log("After search filter:", filtered.length);
-    } else {
-      const params = new URLSearchParams(location.search);
-      params.delete("q");
-      navigate(`${location.pathname}${params.toString() ? `?${params.toString()}` : ""}`, { replace: true });
     }
 
     // Filter by price range
     const [min, max] = priceRange;
     filtered = filtered.filter(
-      (product) => product.price >= min && product.price <= max
+      (product) => (product.price || 0) >= min && (product.price || 0) <= max
     );
     console.log("After price range filter:", filtered.length, { min, max });
 
@@ -98,40 +94,37 @@ const ProductsPage = () => {
       };
       const [catMin, catMax] = categoryPriceRanges[category.toLowerCase()] || [0, Infinity];
       filtered = filtered.filter(
-        (product) => product.price >= catMin && product.price <= catMax
+        (product) => (product.price || 0) >= catMin && (product.price || 0) <= catMax
       );
       console.log("After category filter:", filtered.length, { category, catMin, catMax });
     }
 
     // Sort the filtered products
     if (sortBy) {
-      filtered = [...filtered]; // Create a new array to avoid mutating the original
+      filtered = [...filtered];
       if (sortBy === "price-asc") {
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
         console.log("Sorted by price ascending:", filtered.map(p => p.price));
       } else if (sortBy === "price-desc") {
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
         console.log("Sorted by price descending:", filtered.map(p => p.price));
       } else if (sortBy === "release-date-asc") {
         filtered.sort((a, b) => {
-          // Try releaseDate, fall back to launchDate or other common field names
-          const dateA = new Date(a.releaseDate || a.launchDate || "1900-01-01");
-          const dateB = new Date(b.releaseDate || b.launchDate || "1900-01-01");
-          if (isNaN(dateA) || isNaN(dateB)) {
-            console.warn("Invalid release date:", { a: a.releaseDate || a.launchDate, b: b.releaseDate || b.launchDate });
-            return 0;
-          }
+          const dateA = new Date(a.releaseDate || a.launchDate);
+          const dateB = new Date(b.releaseDate || b.launchDate);
+          if (isNaN(dateA) && isNaN(dateB)) return 0;
+          if (isNaN(dateA)) return 1;
+          if (isNaN(dateB)) return -1;
           return dateA - dateB;
         });
         console.log("Sorted by release date ascending:", filtered.map(p => p.releaseDate || p.launchDate));
       } else if (sortBy === "release-date-desc") {
         filtered.sort((a, b) => {
-          const dateA = new Date(a.releaseDate || a.launchDate || "1900-01-01");
-          const dateB = new Date(b.releaseDate || b.launchDate || "1900-01-01");
-          if (isNaN(dateA) || isNaN(dateB)) {
-            console.warn("Invalid release date:", { a: a.releaseDate || a.launchDate, b: b.releaseDate || b.launchDate });
-            return 0;
-          }
+          const dateA = new Date(a.releaseDate || a.launchDate);
+          const dateB = new Date(b.releaseDate || b.launchDate);
+          if (isNaN(dateA) && isNaN(dateB)) return 0;
+          if (isNaN(dateA)) return 1;
+          if (isNaN(dateB)) return -1;
           return dateB - dateA;
         });
         console.log("Sorted by release date descending:", filtered.map(p => p.releaseDate || p.launchDate));
@@ -141,7 +134,7 @@ const ProductsPage = () => {
     setFilteredProducts(filtered);
     setCurrentPage(1);
     console.log("Final filtered products count:", filtered.length);
-  }, [searchQuery, priceRange, brand, category, sortBy, products, location.search, location.pathname, navigate]);
+  }, [searchQuery, priceRange, brand, category, sortBy, products]);
 
   // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -171,8 +164,28 @@ const ProductsPage = () => {
     setSortBy(e.target.value);
   };
 
+  // Clear search query
+  const clearSearch = () => {
+    setSearchQuery("");
+    const params = new URLSearchParams(location.search);
+    params.delete("q");
+    navigate(`${location.pathname}${params.toString() ? `?${params.toString()}` : ""}`);
+  };
+
   return (
     <div className="products-page">
+      {/* Display Search Query */}
+      {searchQuery && (
+        <div className="search-info">
+          <p>
+            Showing results for: <strong>{searchQuery}</strong>
+          </p>
+          <button onClick={clearSearch} className="clear-search-btn">
+            Clear Search
+          </button>
+        </div>
+      )}
+
       {/* Main Content with Sidebar */}
       <div className="main-content-products">
         {/* Filters (Vertical Sidebar) */}
@@ -196,7 +209,7 @@ const ProductsPage = () => {
           </div>
           <div className="filter-group">
             <label>Brand:</label>
-            <select value={brand} onChange={handleBrandChange}>
+            <select value={brand} onChange={handleBrandChange} aria-label="Filter by brand">
               <option value="">All</option>
               <option value="samsung">Samsung</option>
               <option value="apple">Apple</option>
@@ -206,7 +219,7 @@ const ProductsPage = () => {
           </div>
           <div className="filter-group">
             <label>Category:</label>
-            <select value={category} onChange={handleCategoryChange}>
+            <select value={category} onChange={handleCategoryChange} aria-label="Filter by category">
               <option value="">All</option>
               <option value="budget">Budget</option>
               <option value="low mid range">Low Mid Range</option>
@@ -216,7 +229,7 @@ const ProductsPage = () => {
           </div>
           <div className="filter-group">
             <label>Sort By:</label>
-            <select value={sortBy} onChange={handleSortChange}>
+            <select value={sortBy} onChange={handleSortChange} aria-label="Sort products">
               <option value="">Default</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
@@ -254,6 +267,7 @@ const ProductsPage = () => {
               key={index + 1}
               onClick={() => paginate(index + 1)}
               className={currentPage === index + 1 ? "active" : ""}
+              aria-label={`Go to page ${index + 1}`}
             >
               {index + 1}
             </button>

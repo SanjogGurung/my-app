@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faSave, faUpload, faSpinner, faUser, faChevronDown, faChevronUp, faSignOutAlt, faCheck, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faSave, faUpload, faSpinner, faUser, faChevronDown, faChevronUp, faSignOutAlt, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { updateUser, logout } from '../redux/slices/authSlice';
-import { fetchOrders, updateTrackingStatus } from '../redux/slices/orderSlice';
+import { fetchOrders } from '../redux/slices/orderSlice';
 import Alert from '../components/Alert';
 import '../styles/UserProfile.css';
 import axios from '../axiosConfig';
@@ -20,22 +20,9 @@ export default function UserProfile() {
   const [imageError, setImageError] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
   const [fetchError, setFetchError] = useState(null);
-  const [deliveredOrders, setDeliveredOrders] = useState({});
 
   // Sort orders by latest date
   const orders = [...rawOrders].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-
-  // Load delivered state from local storage on mount (for backward compatibility)
-  useEffect(() => {
-    const storedDeliveredOrders = {};
-    rawOrders.forEach((order) => {
-      const isDelivered = localStorage.getItem(`delivered_order_${order.id}`);
-      if (isDelivered === 'true') {
-        storedDeliveredOrders[order.id] = true;
-      }
-    });
-    setDeliveredOrders(storedDeliveredOrders);
-  }, [rawOrders]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -171,20 +158,6 @@ export default function UserProfile() {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
-  const handleMarkDelivered = (orderId) => {
-    dispatch(updateTrackingStatus({
-      orderId,
-      status: 'Delivered',
-      description: 'Marked as delivered by the user',
-    })).then(() => {
-      setDeliveredOrders((prev) => ({
-        ...prev,
-        [orderId]: true,
-      }));
-      localStorage.setItem(`delivered_order_${orderId}`, 'true');
-    });
-  };
-
   const closeAlert = () => {
     setIsAlertOpen(false);
   };
@@ -294,7 +267,6 @@ export default function UserProfile() {
             <span>Total</span>
             <span>Status</span>
             <span>Shipping Address</span>
-            <span>Delivered</span>
             <span></span>
           </div>
           {orders.map((order) => (
@@ -305,23 +277,6 @@ export default function UserProfile() {
                 <span>${order.totalAmount.toFixed(2)}</span>
                 <span>{order.status || 'Unknown'}</span>
                 <span>{order.shippingAddress || 'N/A'}</span>
-                <span>
-                  {deliveredOrders[order.id] || order.status === 'Delivered' ? (
-                    <span className="delivered-status">
-                      <FontAwesomeIcon icon={faCheck} /> Delivered
-                    </span>
-                  ) : (
-                    <button
-                      className="delivered-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleMarkDelivered(order.id);
-                      }}
-                    >
-                      Mark as Delivered
-                    </button>
-                  )}
-                </span>
                 <span>
                   <FontAwesomeIcon
                     icon={expandedOrder === order.id ? faChevronUp : faChevronDown}

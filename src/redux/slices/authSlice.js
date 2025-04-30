@@ -24,7 +24,7 @@ export const login = createAsyncThunk(
         const user = {
           id: decoded.id,
           email: decoded.sub,
-          role: decoded.role.replace('ROLE_', '').toLowerCase(), // Ensure 'user'
+          role: decoded.role.replace('ROLE_', '').toLowerCase(),
         };
         console.log('User data from token:', user);
         return { token: response.data.token, user };
@@ -63,7 +63,7 @@ export const initializeAuth = createAsyncThunk(
       const user = {
         id: decoded.id,
         email: decoded.sub,
-        role: decoded.role.replace('ROLE_', '').toLowerCase(), // Ensure 'user'
+        role: decoded.role.replace('ROLE_', '').toLowerCase(),
       };
       console.log('User data from token:', user);
       return { token, user };
@@ -71,6 +71,28 @@ export const initializeAuth = createAsyncThunk(
       console.error('initializeAuth error:', error);
       localStorage.removeItem('authToken');
       return rejectWithValue('Invalid token or decode error');
+    }
+  }
+);
+
+// Fetch all users (for staff dashboard)
+export const fetchAllUsers = createAsyncThunk(
+  'auth/fetchAllUsers',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const isStaff = user?.role && (user.role.toLowerCase() === 'staff' || user.role.toLowerCase() === 'admin');
+      if (!isStaff) {
+        return rejectWithValue('Unauthorized: User is not a staff member');
+      }
+
+      const response = await axios.get('http://localhost:8082/user/all', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+      });
+      return response.data;
+    } catch (err) {
+      console.error('Fetch All Users Error:', err);
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch users');
     }
   }
 );
@@ -115,7 +137,9 @@ const authSlice = createSlice({
     isAuthenticated: false,
     user: null,
     token: null,
+    users: [],
     isLoading: false,
+    isInitialized: false, // Added isInitialized
     error: null,
   },
   reducers: {
@@ -123,7 +147,9 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       state.token = null;
+      state.users = [];
       state.error = null;
+      state.isInitialized = true; // Keep initialized true after logout
       localStorage.removeItem('authToken');
     },
   },
@@ -132,12 +158,14 @@ const authSlice = createSlice({
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.isInitialized = false;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.isInitialized = true;
         console.log('login.fulfilled: Updated auth state:', {
           isAuthenticated: state.isAuthenticated,
           user: state.user,
@@ -147,16 +175,19 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        state.isInitialized = true;
       })
       .addCase(initializeAuth.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.isInitialized = false;
       })
       .addCase(initializeAuth.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.isInitialized = true;
         console.log('initializeAuth.fulfilled: Updated auth state:', {
           isAuthenticated: state.isAuthenticated,
           user: state.user,
@@ -168,6 +199,20 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
+        state.error = action.payload;
+        state.isInitialized = true;
+      })
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.users = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(updateUser.pending, (state) => {

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import '../styles/Navbar.css';
+import styles from '../styles/Navbar.module.css'; // Correct import for CSS Modules
 import { FaSearch, FaShoppingCart, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import UserProfile from '../pages/UserProfile';
 import { fetchCart } from '../redux/slices/cartSlice';
 
 export default function Navbar() {
@@ -11,7 +10,7 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isLoggedIn = useSelector((state) => state.auth.isAuthenticated); 
+  const isLoggedIn = useSelector((state) => state.auth.isAuthenticated);
   const cartNumbers = useSelector((state) => state.cart.totalQuantity);
   const location = useLocation();
 
@@ -28,7 +27,8 @@ export default function Navbar() {
   const handleSearchSubmit = (event) => {
     event.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      navigate(`/products?q=${encodeURIComponent(searchTerm)}`);
+      setSearchTerm('');
     }
   };
 
@@ -45,32 +45,32 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-logo">
+    <nav className={styles.navbar}>
+      <div className={styles.navbarLogo}>
         <Link to="/">SuSankhya</Link>
       </div>
 
-      <div className="navbar-toggle" onClick={toggleMenu}>
+      <div className={styles.navbarToggle} onClick={toggleMenu}>
         {isMenuOpen ? <FaTimes /> : <FaBars />}
       </div>
 
-      <div className={`navbar-content ${isMenuOpen ? 'open' : ''}`}>
-        <div className="search-container">
-          <form className="search-form" onSubmit={handleSearchSubmit}>
+      <div className={`${styles.navbarContent} ${isMenuOpen ? styles.open : ''}`}>
+        <div className={styles.searchContainer}>
+          <form className={styles.searchForm} onSubmit={handleSearchSubmit}>
             <input
               type="text"
-              className="search-input"
+              className={styles.searchInput}
               placeholder="Search..."
               value={searchTerm}
               onChange={handleSearchChange}
             />
-            <button type="submit" className="search-button">
+            <button type="submit" className={styles.searchButton}>
               <FaSearch />
             </button>
           </form>
         </div>
 
-        <ul className="navbar-links">
+        <ul className={styles.navbarLinks}>
           <li>
             <Link to="/">Home</Link>
           </li>
@@ -88,12 +88,16 @@ export default function Navbar() {
           </li>
         </ul>
 
-        <div className="navbar-auth">
-          <Link to="/cart" className="cart-btn" onClick={() => isLoggedIn && dispatch(fetchCart())}>
-            <div className='cart-number'>{cartNumbers}</div>
+        <div className={styles.navbarAuth}>
+          <Link
+            to="/cart"
+            className={styles.cartBtn}
+            onClick={() => isLoggedIn && dispatch(fetchCart())}
+          >
+            <div className={styles.cartNumber}>{cartNumbers}</div>
             <FaShoppingCart />
           </Link>
-          <div className="profile-btn" onClick={handleProfileClick}>
+          <div className={styles.profileBtn} onClick={handleProfileClick}>
             <FaUser />
           </div>
         </div>

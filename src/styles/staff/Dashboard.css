@@ -109,3 +109,24 @@
     margin-left: 90px;
   }
 }
+
+/* Search bar styling */
+.products-content .search-bar {
+  margin-bottom: 20px;
+}
+
+.products-content .search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.products-content .search-input:focus {
+  outline: none;
+  border-color: #1e3a8a;
+  box-shadow: 0 0 5px rgba(30, 58, 138, 0.2);
+}

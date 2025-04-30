@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from '../axiosConfig';
+import { placeOrder, clearOrderError } from '../redux/slices/orderSlice';
 import '../styles/Checkout.css';
 
 function Checkout() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { isAuthenticated, token, user, isLoading: authLoading } = useSelector((state) => state.auth);
+    const { status: orderStatus, error: orderError } = useSelector((state) => state.order);
     const cart = useSelector((state) => state.cart);
     const [formData, setFormData] = useState({
         shippingAddress: '',
@@ -20,7 +21,8 @@ function Checkout() {
         if (!isAuthenticated || !user || !token) {
             navigate('/login');
         }
-    }, [isAuthenticated, user, token, navigate]);
+        dispatch(clearOrderError());
+    }, [isAuthenticated, user, token, navigate, dispatch]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -36,7 +38,6 @@ function Checkout() {
         setError(null);
         setIsSubmitting(true);
 
-        // Validate inputs
         let errors = [];
         if (!formData.shippingAddress) {
             errors.push("Shipping address is required.");
@@ -54,30 +55,41 @@ function Checkout() {
         }
 
         try {
-            // Prepare form data
-            const formDataToSend = new URLSearchParams();
-            formDataToSend.append("shippingAddress", formData.shippingAddress);
-            formDataToSend.append("phoneNumber", formData.phoneNumber);
+            const totalAmount = calculateTotal() * 100; // Convert to paisa
+            console.log('Submitting order with:', { shippingAddress: formData.shippingAddress, phoneNumber: formData.phoneNumber, totalAmount });
+            const result = await dispatch(placeOrder({
+                shippingAddress: formData.shippingAddress,
+                phoneNumber: formData.phoneNumber,
+                totalAmount: totalAmount
+            })).unwrap();
 
-            const response = await axios.post('http://localhost:8082/order/initiate-payment', formDataToSend, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-            });
-
-            const { payment_url } = response.data;
+            console.log('Order placement result:', result);
+            const { payment_url } = result;
             if (payment_url) {
+                console.log('Redirecting to Khalti portal:', payment_url);
                 window.location.href = payment_url;
             } else {
-                throw new Error('Failed to initiate payment: No payment URL received.');
+                throw new Error('Failed to initiate payment: No payment URL received from Khalti.');
             }
         } catch (err) {
-            console.error('Error initializing payment:', err.response?.status, err.response?.data);
-            const errorMessage = err.response?.data?.error || err.message || 'Failed to initiate payment';
-            setError(errorMessage);
+            console.error('Error during order placement:', err);
+            const errorMessage = orderError || err.message || 'Failed to initiate payment with Khalti. Please try again or contact support.';
+            if (errorMessage.includes('Khalti')) {
+                setError('Khalti payment service is currently unavailable. Please try again later.');
+            } else {
+                setError(errorMessage);
+            }
             setIsSubmitting(false);
         }
+    };
+
+    const handleRetry = () => {
+        setError(null);
+        dispatch(clearOrderError());
+    };
+
+    const handleCancel = () => {
+        navigate('/cart');
     };
 
     if (authLoading) {
@@ -112,7 +124,7 @@ function Checkout() {
                                                 src={`http://localhost:8082/product/${item.productId}/image/1`}
                                                 alt={item.productName || 'Product Image'}
                                                 className="cart-item-image"
-                                                onError={(e) => (e.target.src = '/placeholder-image.jpg')} // Fallback image
+                                                onError={(e) => (e.target.src = '/placeholder-image.jpg')}
                                             />
                                             <div className="cart-item-info">
                                                 <h2>{item.productName || 'Unknown Product'}</h2>
@@ -165,9 +177,21 @@ function Checkout() {
                         <label>Payment Method</label>
                         <p className="payment-method">Khalti</p>
                     </div>
-                    {error && <p className="error">{error}</p>}
-                    <button type="submit" className="place-order-button" disabled={isSubmitting || cart.items.length === 0}>
-                        {isSubmitting ? 'Processing...' : 'Place Order'}
+                    {error && (
+                        <div className="error">
+                            <p>{error}</p>
+                            <div className="error-actions">
+                                <button type="button" onClick={handleRetry}>Retry</button>
+                                <button type="button" onClick={handleCancel}>Cancel</button>
+                            </div>
+                        </div>
+                    )}
+                    <button
+                        type="submit"
+                        className="place-order-button"
+                        disabled={orderStatus === 'loading' || cart.items.length === 0 || isSubmitting}
+                    >
+                        {isSubmitting || orderStatus === 'loading' ? 'Processing...' : 'Place Order'}
                     </button>
                 </form>
             </div>

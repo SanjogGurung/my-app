@@ -184,8 +184,8 @@ export default function ProductDescriptionPage() {
                     <div className={styles['price-section']}>
                         {product.isOnSale ? (
                             <>
-                                <span className={styles['original-price']}>${parseFloat(product.price).toFixed(2)}</span>
-                                <span className={styles['discounted-price']}>${calculateDiscountedPrice()}</span>
+                                <span className={styles['original-price']}>NPR {parseFloat(product.price).toFixed(2)}</span>
+                                <span className={styles['discounted-price']}>NPR {calculateDiscountedPrice()}</span>
                             </>
                         ) : (
                             <span className={styles['price']}>${parseFloat(product.price).toFixed(2)}</span>

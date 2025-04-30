@@ -20,12 +20,10 @@ axiosInstance.interceptors.response.use(
         if (storeInstance) {
           storeInstance.dispatch(logout());
         }
-        if (window.location.pathname !== '/login') {
-          console.log('Redirecting to /login');
-          window.location = '/login';
-        }
+        // Remove the redirect; let ProtectedRoute handle navigation
+        console.log('Skipping redirect; ProtectedRoute will handle navigation');
       } else {
-        console.log('Skipping logout/redirect for user endpoint:', error.config.url);
+        console.log('Skipping logout for user endpoint:', error.config.url);
       }
       return Promise.reject(error);
     }
